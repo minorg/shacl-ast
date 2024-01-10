@@ -8,7 +8,7 @@ Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes
 
 ## Usage
 
-```
+```ts
 import {ShapesGraph} from "shacl-ast";
 
 const shapesGraph = ShapesGraph.fromDataset(testShapesGraph);
