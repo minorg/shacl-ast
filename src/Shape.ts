@@ -5,8 +5,10 @@ import {NodeKind} from "./NodeKind";
 import {hasRdfSuperClass} from "hasRdfSuperClass";
 
 export class Shape extends ShaclModel {
-  get description(): string | null {
-    return this.findAndMapObject(sh.description, mapTermToString);
+  get description(): Literal | null {
+    return this.findAndMapObject(sh.description, (term) =>
+      term.termType === "Literal" ? (term as Literal) : null
+    );
   }
 
   /**
