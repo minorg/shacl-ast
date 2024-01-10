@@ -1,15 +1,16 @@
-import {NamedNode} from "@rdfjs/types";
+import {Literal, NamedNode} from "@rdfjs/types";
 import {ShapesGraph} from "./ShapesGraph";
-import {rdfs} from "@paradicms/vocabularies";
+import {rdfs} from "@tpluscode/rdf-ns-builders";
 import {ShaclModel} from "./ShaclModel";
-import {mapTermToString} from "@paradicms/rdf";
 
 export class PropertyGroup extends ShaclModel {
   constructor(kwds: {node: NamedNode; shapesGraph: ShapesGraph}) {
     super(kwds);
   }
 
-  get label(): string | null {
-    return this.findAndMapObject(rdfs.label, mapTermToString);
+  get label(): Literal | null {
+    return this.findAndMapObject(rdfs.label, (term) =>
+      term.termType === "Literal" ? (term as Literal) : null
+    );
   }
 }

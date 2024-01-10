@@ -1,6 +1,6 @@
 import {Shape} from "./Shape";
 import {BlankNode, Literal, NamedNode, Term} from "@rdfjs/types";
-import {dash, sh, xsd} from "@paradicms/vocabularies";
+import {dash, sh, xsd} from "@tpluscode/rdf-ns-builders";
 import {PropertyGroup} from "./PropertyGroup";
 import {requireNonNull} from "@paradicms/utilities";
 import {getRdfList, mapTermToNumber} from "@paradicms/rdf";
@@ -21,31 +21,31 @@ const hasPropertyShapeValueTermType = (term: Term): boolean => {
 
 export class PropertyShape extends Shape {
   get classes(): readonly NamedNode[] {
-    return this.filterAndMapObjects(sh.class, term =>
+    return this.filterAndMapObjects(sh.class, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }
 
   get datatype(): NamedNode | null {
-    return this.findAndMapObject(sh.datatype, term =>
+    return this.findAndMapObject(sh.datatype, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }
 
   get defaultValue(): PropertyShapeValue | null {
-    return this.findAndMapObject(sh.defaultValue, term =>
+    return this.findAndMapObject(sh.defaultValue, (term) =>
       hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null
     );
   }
 
   get editor(): NamedNode | null {
-    return this.findAndMapObject(dash.editor, term =>
+    return this.findAndMapObject(dash.editor, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }
 
   get group(): PropertyGroup | null {
-    return this.findAndMapObject(sh.group, term =>
+    return this.findAndMapObject(sh.group, (term) =>
       term.termType === "NamedNode"
         ? this.shapesGraph.propertyGroupByNode(term)
         : null
@@ -53,13 +53,13 @@ export class PropertyShape extends Shape {
   }
 
   get hasValue(): PropertyShapeValue | null {
-    return this.findAndMapObject(sh.hasValue, term =>
+    return this.findAndMapObject(sh.hasValue, (term) =>
       hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null
     );
   }
 
   get in_(): readonly PropertyShapeValue[] | null {
-    return this.findAndMapObject(sh.in, term => {
+    return this.findAndMapObject(sh.in, (term) => {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
@@ -82,7 +82,7 @@ export class PropertyShape extends Shape {
   }
 
   get nodeShapes(): readonly NodeShape[] {
-    return this.filterAndMapObjects(sh.node, term => {
+    return this.filterAndMapObjects(sh.node, (term) => {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
@@ -96,7 +96,7 @@ export class PropertyShape extends Shape {
   get or(): readonly PropertyShape[] {
     const propertyShapes: PropertyShape[] = [];
     for (const orQuad of this.dataset.match(
-      this.identifier,
+      this.node,
       sh.or,
       null,
       this.shapesGraph.graphNode
@@ -133,14 +133,14 @@ export class PropertyShape extends Shape {
 
   get path(): NamedNode {
     return requireNonNull(
-      this.findAndMapObject(sh.path, term =>
+      this.findAndMapObject(sh.path, (term) =>
         term.termType === "NamedNode" ? (term as NamedNode) : null
       )
     );
   }
 
   get singleLine(): boolean | null {
-    return this.findAndMapObject(dash.singleLine, term => {
+    return this.findAndMapObject(dash.singleLine, (term) => {
       if (term.termType !== "Literal") {
         return null;
       } else if (!term.datatype.equals(xsd.boolean)) {
@@ -160,7 +160,7 @@ export class PropertyShape extends Shape {
   }
 
   get viewer(): NamedNode | null {
-    return this.findAndMapObject(dash.viewer, term =>
+    return this.findAndMapObject(dash.viewer, (term) =>
       term.termType === "NamedNode" ? (term as NamedNode) : null
     );
   }

@@ -5,13 +5,13 @@ import {
   NamedNode,
   Term,
 } from "@rdfjs/types";
-import {rdf, sh} from "@paradicms/vocabularies";
+import {rdf, sh} from "@tpluscode/rdf-ns-builders";
 import {NodeShape} from "./NodeShape";
 import {PropertyShape} from "./PropertyShape";
 import {PropertyGroup} from "./PropertyGroup";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
-import {requireDefined} from "@paradicms/utilities";
+import {requireDefined} from "requireDefined";
 
 export class ShapesGraph {
   readonly graphNode: BlankNode | DefaultGraph | NamedNode;
@@ -31,21 +31,15 @@ export class ShapesGraph {
   private constructor(readonly dataset: DatasetCore) {
     this.graphNode = ShapesGraph.readGraph(dataset);
 
-    const {
-      nodeShapes,
-      nodeShapesByNode,
-      propertyShapes,
-      propertyShapesByNode,
-    } = ShapesGraph.readShapes(dataset, this.graphNode, this);
+    const {nodeShapes, nodeShapesByNode, propertyShapes, propertyShapesByNode} =
+      ShapesGraph.readShapes(dataset, this.graphNode, this);
     this.nodeShapes = nodeShapes;
     this.nodeShapesByNode = nodeShapesByNode;
     this.propertyShapes = propertyShapes;
     this.propertyShapesByNode = propertyShapesByNode;
 
-    const {
-      propertyGroups,
-      propertyGroupsByNode,
-    } = ShapesGraph.readPropertyGroups(dataset, this.graphNode, this);
+    const {propertyGroups, propertyGroupsByNode} =
+      ShapesGraph.readPropertyGroups(dataset, this.graphNode, this);
     this.propertyGroups = propertyGroups;
     this.propertyGroupsByNode = propertyGroupsByNode;
   }
@@ -98,10 +92,8 @@ export class ShapesGraph {
     propertyGroupsByNode: TermMap<NamedNode, PropertyGroup>;
   } {
     const propertyGroups: PropertyGroup[] = [];
-    const propertyGroupsByNode: TermMap<
-      NamedNode,
-      PropertyGroup
-    > = new TermMap();
+    const propertyGroupsByNode: TermMap<NamedNode, PropertyGroup> =
+      new TermMap();
     for (const quad of dataset.match(null, rdf.type, sh.PropertyGroup, graph)) {
       const subject = quad.subject;
       if (subject.termType !== "NamedNode") {
@@ -212,15 +204,11 @@ export class ShapesGraph {
 
     // Separate shapes into node and property shapes.
     const nodeShapes: NodeShape[] = [];
-    const nodeShapesByNode: TermMap<
-      BlankNode | NamedNode,
-      NodeShape
-    > = new TermMap();
+    const nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape> =
+      new TermMap();
     const propertyShapes: PropertyShape[] = [];
-    const propertyShapesByNode: TermMap<
-      BlankNode | NamedNode,
-      PropertyShape
-    > = new TermMap();
+    const propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape> =
+      new TermMap();
 
     for (const shapeNode of shapeNodeSet) {
       if (dataset.match(shapeNode, sh.path, null, graph).size > 0) {

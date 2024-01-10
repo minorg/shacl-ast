@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {FocusNode, NodeShape, PropertyShape, ShapesGraph} from "../src";
 import {ShaclProcessor} from "../src/ShaclProcessor";
 import {DataFactory} from "@paradicms/rdf";
-import {schema} from "@paradicms/vocabularies";
+import {schema} from "@tpluscode/rdf-ns-builders";
 import {
   invalidTestDataGraph,
   testShapesGraph,
@@ -22,7 +22,7 @@ describe("ShaclProcessor", () => {
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
       shapesGraph,
-    }).someRdfTypeNodeShapes(nodeShape => {
+    }).someRdfTypeNodeShapes((nodeShape) => {
       nodeShapes.push(nodeShape);
       return false;
     }, schema.Person);
@@ -34,13 +34,13 @@ describe("ShaclProcessor", () => {
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
       shapesGraph,
-    }).someFocusNodePropertyShapes(propertyShape => {
+    }).someFocusNodePropertyShapes((propertyShape) => {
       propertyShapes.push(propertyShape);
       return false;
     }, DataFactory.namedNode("urn:example:MinorGordon"));
     expect(propertyShapes).to.have.length(4);
     expect(
-      propertyShapes.find(propertyShape =>
+      propertyShapes.find((propertyShape) =>
         propertyShape.path.equals(schema.givenName)
       )
     ).to.not.be.undefined;
@@ -51,7 +51,7 @@ describe("ShaclProcessor", () => {
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
       shapesGraph,
-    }).someFocusNodePropertyShapes(propertyShape => {
+    }).someFocusNodePropertyShapes((propertyShape) => {
       propertyShapes.push(propertyShape);
       return false;
     }, DataFactory.namedNode("urn:example:troy"));
@@ -66,7 +66,7 @@ describe("ShaclProcessor", () => {
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
       shapesGraph,
-    }).someShapeFocusNodes(focusNode => {
+    }).someShapeFocusNodes((focusNode) => {
       focusNodes.push(focusNode);
       return false;
     }, nodeShape);

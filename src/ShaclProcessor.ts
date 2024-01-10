@@ -5,11 +5,12 @@ import {DataGraph} from "./DataGraph";
 import {ShapesGraph} from "./ShapesGraph";
 import * as ValidationReport from "rdf-validate-shacl/src/validation-report";
 import SHACLValidator from "rdf-validate-shacl";
-import {getRdfInstances, hasRdfSuperClass} from "@paradicms/rdf";
 import TermSet from "@rdfjs/term-set";
 import {PropertyShape} from "./PropertyShape";
 import {NodeShape} from "./NodeShape";
 import {NodeKind} from "./NodeKind";
+import {hasRdfSuperClass} from "hasRdfSuperClass";
+import {getRdfInstances} from "getRdfInstances";
 
 type SomeShapeFocusNodeCallback = (focusNode: FocusNode) => boolean;
 
@@ -35,7 +36,7 @@ export class ShaclProcessor {
     for (const nodeShape of this.shapesGraph.nodeShapes) {
       if (
         !this.someShapeFocusNodes(
-          shapeFocusNode => shapeFocusNode.equals(focusNode),
+          (shapeFocusNode) => shapeFocusNode.equals(focusNode),
           nodeShape
         )
       ) {
@@ -58,7 +59,7 @@ export class ShaclProcessor {
     for (const propertyShape of this.shapesGraph.propertyShapes) {
       if (
         !this.someShapeFocusNodes(
-          shapeFocusNode => shapeFocusNode.equals(focusNode),
+          (shapeFocusNode) => shapeFocusNode.equals(focusNode),
           propertyShape
         )
       ) {
@@ -143,7 +144,7 @@ export class ShaclProcessor {
   ): boolean {
     // If the shape has an rdf:type of rdfs:Class or a sub-class of rdfs:Class,
     // all data graph instances of the shape or its sub-classes are focusNodes.
-    return shape.implicitClassTargets.some(rdfType => {
+    return shape.implicitClassTargets.some((rdfType) => {
       for (const focusNode of getRdfInstances({
         class_: rdfType,
         dataset: this.dataGraph,
@@ -211,7 +212,7 @@ export class ShaclProcessor {
     seenFocusNodeSet: TermSet<FocusNode>,
     shape: Shape
   ): boolean {
-    return shape.targetClasses.some(targetClass => {
+    return shape.targetClasses.some((targetClass) => {
       for (const focusNode of getRdfInstances({
         class_: targetClass,
         dataset: this.dataGraph,
@@ -234,7 +235,7 @@ export class ShaclProcessor {
     shape: Shape
   ): boolean {
     // A node target is specified using the sh:targetNode predicate. Each value of sh:targetNode in a shape is either an IRI or a literal.
-    return shape.targetNodes.some(targetNode => {
+    return shape.targetNodes.some((targetNode) => {
       switch (targetNode.termType) {
         case "Literal":
           return callback(targetNode);
@@ -260,7 +261,7 @@ export class ShaclProcessor {
     shape: Shape
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetObjectsOf in SG then the set of nodes in a data graph DG that are objects of triples in DG with predicate p is a target from DG for s in SG.
-    return shape.targetObjectsOf.some(p => {
+    return shape.targetObjectsOf.some((p) => {
       for (const quad of this.dataGraph.match(null, p, null, null)) {
         switch (quad.object.termType) {
           case "BlankNode":
@@ -291,7 +292,7 @@ export class ShaclProcessor {
     shape: Shape
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetSubjectsOf in SG then the set of nodes in a data graph DG that are subjects of triples in DG with predicate p is a target from DG for s in SG.
-    return shape.targetSubjectsOf.some(p => {
+    return shape.targetSubjectsOf.some((p) => {
       for (const quad of this.dataGraph.match(null, p, null, null)) {
         switch (quad.subject.termType) {
           case "BlankNode":

@@ -1,8 +1,8 @@
 import {ShaclModel} from "./ShaclModel";
-import {rdf, rdfs, sh} from "@paradicms/vocabularies";
+import {rdf, rdfs, sh} from "@tpluscode/rdf-ns-builders";
 import {Literal, NamedNode} from "@rdfjs/types";
 import {NodeKind} from "./NodeKind";
-import {hasRdfSuperClass, mapTermToString} from "@paradicms/rdf";
+import {hasRdfSuperClass} from "hasRdfSuperClass";
 
 export class Shape extends ShaclModel {
   get description(): string | null {
@@ -13,11 +13,11 @@ export class Shape extends ShaclModel {
    * The rdf:Class's this shape is or is a subClassOf.
    */
   get implicitClassTargets(): readonly NamedNode[] {
-    return this.filterAndMapObjects(rdf.type, term =>
+    return this.filterAndMapObjects(rdf.type, (term) =>
       term.termType === "NamedNode" &&
       hasRdfSuperClass({
         dataset: this.dataset,
-        graph: this.graph,
+        graph: this.shapesGraph.graphNode,
         subClass: term,
         superClass: rdfs.Class,
       })
@@ -26,12 +26,14 @@ export class Shape extends ShaclModel {
     );
   }
 
-  get name(): string | null {
-    return this.findAndMapObject(sh.name, mapTermToString);
+  get name(): Literal | null {
+    return this.findAndMapObject(sh.name, (term) =>
+      term.termType === "Literal" ? (term as Literal) : null
+    );
   }
 
   get nodeKind(): NodeKind | null {
-    return this.findAndMapObject(sh.nodeKind, term => {
+    return this.findAndMapObject(sh.nodeKind, (term) => {
       if (term.termType !== "NamedNode") {
         return null;
       }
@@ -54,25 +56,25 @@ export class Shape extends ShaclModel {
   }
 
   get targetClasses(): readonly NamedNode[] {
-    return this.filterAndMapObjects(sh.targetClass, term =>
+    return this.filterAndMapObjects(sh.targetClass, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }
 
   get targetNodes(): readonly (Literal | NamedNode)[] {
-    return this.filterAndMapObjects(sh.targetNode, term =>
+    return this.filterAndMapObjects(sh.targetNode, (term) =>
       term.termType === "Literal" || term.termType === "NamedNode" ? term : null
     );
   }
 
   get targetObjectsOf(): readonly NamedNode[] {
-    return this.filterAndMapObjects(sh.targetObjectsOf, term =>
+    return this.filterAndMapObjects(sh.targetObjectsOf, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }
 
   get targetSubjectsOf(): readonly NamedNode[] {
-    return this.filterAndMapObjects(sh.targetSubjectsOf, term =>
+    return this.filterAndMapObjects(sh.targetSubjectsOf, (term) =>
       term.termType === "NamedNode" ? term : null
     );
   }

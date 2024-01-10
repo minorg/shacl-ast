@@ -1,11 +1,11 @@
 import {Shape} from "./Shape";
 import {PropertyShape} from "./PropertyShape";
-import {sh} from "@paradicms/vocabularies";
 import {BlankNode, NamedNode} from "@rdfjs/types";
+import {sh} from "@tpluscode/rdf-ns-builders";
 
 export class NodeShape extends Shape {
   get properties(): readonly PropertyShape[] {
-    return this.filterAndMapObjects(sh.property, propertyObject => {
+    return this.filterAndMapObjects(sh.property, (propertyObject) => {
       switch (propertyObject.termType) {
         case "BlankNode":
         case "NamedNode":
