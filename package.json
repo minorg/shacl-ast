@@ -3,8 +3,10 @@
   "name": "shacl-ast",
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "dependencies": {
+    "@rdfjs/types": "1.1.0",
+    "@tpluscode/rdf-ns-builders": "2.0.1",
     "@types/rdf-validate-shacl": "^0.4.0",
-    "typescript-memoize": "1.0.1",
+    "prettier": "^3.1.1",
     "rdf-validate-shacl": "0.4.5"
   },
   "devDependencies": {
