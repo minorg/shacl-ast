@@ -12,13 +12,13 @@ describe("Shapes", () => {
   it("should have properties", () => {
     {
       const personNodeShape = shapes.nodeShapeByNode(
-        DataFactory.namedNode("https://schema.org/PersonShape")
+        DataFactory.namedNode("http://schema.org/PersonShape")
       );
       expect(personNodeShape.properties).toHaveLength(4);
     }
     {
       const addressNodeShape = shapes.nodeShapeByNode(
-        DataFactory.namedNode("https://schema.org/AddressShape")
+        DataFactory.namedNode("http://schema.org/AddressShape")
       );
       expect(addressNodeShape.properties).toHaveLength(2);
     }
