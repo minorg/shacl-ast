@@ -11,7 +11,7 @@ import {PropertyShape} from "./PropertyShape";
 import {PropertyGroup} from "./PropertyGroup";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
-import {requireDefined} from "requireDefined";
+import {requireDefined} from "./requireDefined";
 
 export class ShapesGraph {
   readonly graphNode: BlankNode | DefaultGraph | NamedNode;

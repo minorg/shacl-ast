@@ -2,7 +2,7 @@ import {ShaclModel} from "./ShaclModel";
 import {rdf, rdfs, sh} from "@tpluscode/rdf-ns-builders";
 import {Literal, NamedNode} from "@rdfjs/types";
 import {NodeKind} from "./NodeKind";
-import {hasRdfSuperClass} from "hasRdfSuperClass";
+import {hasRdfSuperClass} from "./hasRdfSuperClass";
 
 export class Shape extends ShaclModel {
   get description(): Literal | null {

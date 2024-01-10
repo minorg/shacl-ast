@@ -9,8 +9,8 @@ import TermSet from "@rdfjs/term-set";
 import {PropertyShape} from "./PropertyShape";
 import {NodeShape} from "./NodeShape";
 import {NodeKind} from "./NodeKind";
-import {hasRdfSuperClass} from "hasRdfSuperClass";
-import {getRdfInstances} from "getRdfInstances";
+import {hasRdfSuperClass} from "./hasRdfSuperClass";
+import {getRdfInstances} from "./getRdfInstances";
 
 type SomeShapeFocusNodeCallback = (focusNode: FocusNode) => boolean;
 
