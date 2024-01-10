@@ -1,17 +1,15 @@
-import {expect} from "chai";
 import {ShapesGraph} from "../src";
 import {testShapesGraph} from "./testShapesGraph";
 
 describe("ShapesGraph", () => {
   let shapesGraph: ShapesGraph;
 
-  before(() => {
+  beforeAll(() => {
     shapesGraph = ShapesGraph.fromDataset(testShapesGraph);
   });
 
   it("should parse the shapes correctly", () => {
-    expect(shapesGraph).to.not.be.undefined;
-    expect(shapesGraph.nodeShapes).to.have.length(4);
-    expect(shapesGraph.propertyShapes).to.have.length(6);
+    expect(shapesGraph.nodeShapes).toHaveLength(4);
+    expect(shapesGraph.propertyShapes).toHaveLength(6);
   });
 });
