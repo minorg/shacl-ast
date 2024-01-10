@@ -39,7 +39,7 @@ describe("ShaclProcessor", () => {
       propertyShapes.find((propertyShape) =>
         propertyShape.path.equals(schema.givenName)
       )
-    ).to.not.be.undefined;
+    ).toBeDefined();
   });
 
   it("should get no property shapes for a focus node that has none", () => {
