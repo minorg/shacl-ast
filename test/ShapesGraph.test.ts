@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {ShapesGraph} from "../src";
-import {testShapesGraph} from "@paradicms/test";
+import {testShapesGraph} from "./testShapesGraph";
 
 describe("ShapesGraph", () => {
   let shapesGraph: ShapesGraph;

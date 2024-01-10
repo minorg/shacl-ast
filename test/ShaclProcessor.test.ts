@@ -1,14 +1,11 @@
 import {expect} from "chai";
 import {FocusNode, NodeShape, PropertyShape, ShapesGraph} from "../src";
 import {ShaclProcessor} from "../src/ShaclProcessor";
-import {DataFactory} from "@paradicms/rdf";
+import {DataFactory} from "n3";
 import {schema} from "@tpluscode/rdf-ns-builders";
-import {
-  invalidTestDataGraph,
-  testShapesGraph,
-  validTestDataGraph,
-} from "@paradicms/test";
 import {describe} from "mocha";
+import {testShapesGraph} from "./testShapesGraph";
+import {validTestDataGraph} from "./validTestDataGraph";
 
 describe("ShaclProcessor", () => {
   let shapesGraph: ShapesGraph;
