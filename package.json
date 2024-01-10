@@ -1,0 +1,30 @@
+{
+  "author": "Minor Gordon",
+  "name": "shacl-ast",
+  "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
+  "dependencies": {
+    "@types/rdf-validate-shacl": "^0.4.0",
+    "typescript-memoize": "1.0.1",
+    "rdf-validate-shacl": "0.4.5"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "rimraf": "3.0.2",
+    "typescript": "^4.5.4"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "GPL-3.0-only",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist",
+    "rebuild": "rimraf dist && tsc -b",
+    "test": "env NODE_ENV=test TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' mocha -r ts-node/register 'test/**/*.ts'",
+    "test-watch": "env NODE_ENV=test TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' mocha -r ts-node/register -w 'test/**/*.ts'",
+    "watch": "tsc -w --preserveWatchOutput"
+  },
+  "types": "dist/index.d.ts",
+  "version": "1.0.5"
+}
