@@ -29,6 +29,10 @@
   ],
   "license": "GPL-3.0-only",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minorg/shacl-ast"
+  },
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf dist",
@@ -37,5 +41,5 @@
     "watch": "tsc -w --preserveWatchOutput"
   },
   "types": "dist/index.d.ts",
-  "version": "1.0.3"
+  "version": "1.0.4"
 }
