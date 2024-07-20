@@ -1,16 +1,16 @@
-import {BlankNode, NamedNode} from "@rdfjs/types";
-import {Shape} from "./Shape";
-import {FocusNode} from "./FocusNode";
-import {DataGraph} from "./DataGraph";
-import {ShapesGraph} from "./ShapesGraph";
+import { BlankNode, NamedNode } from "@rdfjs/types";
+import { Shape } from "./Shape";
+import { FocusNode } from "./FocusNode";
+import { DataGraph } from "./DataGraph";
+import { ShapesGraph } from "./ShapesGraph";
 import * as ValidationReport from "rdf-validate-shacl/src/validation-report";
 import SHACLValidator from "rdf-validate-shacl";
 import TermSet from "@rdfjs/term-set";
-import {PropertyShape} from "./PropertyShape";
-import {NodeShape} from "./NodeShape";
-import {NodeKind} from "./NodeKind";
-import {hasRdfSuperClass} from "./hasRdfSuperClass";
-import {getRdfInstances} from "./getRdfInstances";
+import { PropertyShape } from "./PropertyShape";
+import { NodeShape } from "./NodeShape";
+import { NodeKind } from "./NodeKind";
+import { hasRdfSuperClass } from "./hasRdfSuperClass";
+import { getRdfInstances } from "./getRdfInstances";
 
 type SomeShapeFocusNodeCallback = (focusNode: FocusNode) => boolean;
 
@@ -18,7 +18,7 @@ export class ShaclProcessor {
   private readonly dataGraph: DataGraph;
   private readonly shapesGraph: ShapesGraph;
 
-  constructor(kwds: {dataGraph: DataGraph; shapesGraph: ShapesGraph}) {
+  constructor(kwds: { dataGraph: DataGraph; shapesGraph: ShapesGraph }) {
     this.dataGraph = kwds.dataGraph;
     this.shapesGraph = kwds.shapesGraph;
   }
@@ -28,7 +28,7 @@ export class ShaclProcessor {
    */
   someFocusNodePropertyShapes(
     callback: (propertyShape: PropertyShape) => boolean,
-    focusNode: FocusNode
+    focusNode: FocusNode,
   ): boolean {
     const seenPropertyShapeNodeSet = new TermSet<BlankNode | NamedNode>();
 
@@ -37,7 +37,7 @@ export class ShaclProcessor {
       if (
         !this.someShapeFocusNodes(
           (shapeFocusNode) => shapeFocusNode.equals(focusNode),
-          nodeShape
+          nodeShape,
         )
       ) {
         continue;
@@ -60,7 +60,7 @@ export class ShaclProcessor {
       if (
         !this.someShapeFocusNodes(
           (shapeFocusNode) => shapeFocusNode.equals(focusNode),
-          propertyShape
+          propertyShape,
         )
       ) {
         continue;
@@ -83,7 +83,7 @@ export class ShaclProcessor {
    */
   someRdfTypeNodeShapes(
     callback: (nodeShape: NodeShape) => boolean,
-    rdfType: NamedNode
+    rdfType: NamedNode,
   ): boolean {
     const nodeShapeTargetsRdfType = (nodeShape: NodeShape): boolean => {
       if (
@@ -140,7 +140,7 @@ export class ShaclProcessor {
   private someShapeImplicitClassTargetFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     // If the shape has an rdf:type of rdfs:Class or a sub-class of rdfs:Class,
     // all data graph instances of the shape or its sub-classes are focusNodes.
@@ -165,7 +165,7 @@ export class ShaclProcessor {
   private someShapeShNodeFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     if (!(shape instanceof NodeShape)) {
       return false;
@@ -186,7 +186,7 @@ export class ShaclProcessor {
           null,
           propertyShape.path,
           null,
-          null
+          null,
         )) {
           switch (quad.object.termType) {
             case "BlankNode":
@@ -210,7 +210,7 @@ export class ShaclProcessor {
   private someShapeTargetClassFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     return shape.targetClasses.some((targetClass) => {
       for (const focusNode of getRdfInstances({
@@ -232,7 +232,7 @@ export class ShaclProcessor {
   private someShapeTargetNodeFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     // A node target is specified using the sh:targetNode predicate. Each value of sh:targetNode in a shape is either an IRI or a literal.
     return shape.targetNodes.some((targetNode) => {
@@ -258,7 +258,7 @@ export class ShaclProcessor {
   private someShapeTargetObjectsOfFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetObjectsOf in SG then the set of nodes in a data graph DG that are objects of triples in DG with predicate p is a target from DG for s in SG.
     return shape.targetObjectsOf.some((p) => {
@@ -289,7 +289,7 @@ export class ShaclProcessor {
   private someShapeTargetSubjectsOfFocusNodes(
     callback: SomeShapeFocusNodeCallback,
     seenFocusNodeSet: TermSet<FocusNode>,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetSubjectsOf in SG then the set of nodes in a data graph DG that are subjects of triples in DG with predicate p is a target from DG for s in SG.
     return shape.targetSubjectsOf.some((p) => {
@@ -314,7 +314,7 @@ export class ShaclProcessor {
    */
   someShapeFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    shape: Shape
+    shape: Shape,
   ): boolean {
     const seenFocusNodeSet = new TermSet<FocusNode>();
 

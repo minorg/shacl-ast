@@ -1,5 +1,5 @@
-import {Term} from "@rdfjs/types";
-import {xsd} from "@tpluscode/rdf-ns-builders";
+import { Term } from "@rdfjs/types";
+import { xsd } from "@tpluscode/rdf-ns-builders";
 
 export const mapTermToNumber = (term: Term): number | null => {
   if (term.termType !== "Literal") {

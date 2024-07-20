@@ -1,13 +1,13 @@
-import {ShaclModel} from "./ShaclModel";
-import {rdf, rdfs, sh} from "@tpluscode/rdf-ns-builders";
-import {Literal, NamedNode} from "@rdfjs/types";
-import {NodeKind} from "./NodeKind";
-import {hasRdfSuperClass} from "./hasRdfSuperClass";
+import { ShaclModel } from "./ShaclModel";
+import { rdf, rdfs, sh } from "@tpluscode/rdf-ns-builders";
+import { Literal, NamedNode } from "@rdfjs/types";
+import { NodeKind } from "./NodeKind";
+import { hasRdfSuperClass } from "./hasRdfSuperClass";
 
 export class Shape extends ShaclModel {
   get description(): Literal | null {
     return this.findAndMapObject(sh.description, (term) =>
-      term.termType === "Literal" ? (term as Literal) : null
+      term.termType === "Literal" ? (term as Literal) : null,
     );
   }
 
@@ -24,13 +24,13 @@ export class Shape extends ShaclModel {
         superClass: rdfs.Class,
       })
         ? term
-        : null
+        : null,
     );
   }
 
   get name(): Literal | null {
     return this.findAndMapObject(sh.name, (term) =>
-      term.termType === "Literal" ? (term as Literal) : null
+      term.termType === "Literal" ? (term as Literal) : null,
     );
   }
 
@@ -59,25 +59,27 @@ export class Shape extends ShaclModel {
 
   get targetClasses(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetClass, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 
   get targetNodes(): readonly (Literal | NamedNode)[] {
     return this.filterAndMapObjects(sh.targetNode, (term) =>
-      term.termType === "Literal" || term.termType === "NamedNode" ? term : null
+      term.termType === "Literal" || term.termType === "NamedNode"
+        ? term
+        : null,
     );
   }
 
   get targetObjectsOf(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetObjectsOf, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 
   get targetSubjectsOf(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetSubjectsOf, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 }

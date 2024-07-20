@@ -1,3 +1,3 @@
-import {DatasetCore} from "@rdfjs/types";
+import { DatasetCore } from "@rdfjs/types";
 
 export type DataGraph = DatasetCore;

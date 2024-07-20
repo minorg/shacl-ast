@@ -6,7 +6,7 @@ import {
   NamedNode,
   Quad,
 } from "@rdfjs/types";
-import {rdf} from "@tpluscode/rdf-ns-builders";
+import { rdf } from "@tpluscode/rdf-ns-builders";
 
 const firstQuad = (dataset: DatasetCore): Quad => {
   for (const quad of dataset) {
@@ -20,7 +20,7 @@ export const getRdfList = (kwds: {
   graph?: BlankNode | DefaultGraph | NamedNode;
   node: BlankNode | NamedNode;
 }): (BlankNode | NamedNode | Literal)[] => {
-  const {dataset, graph, node} = kwds;
+  const { dataset, graph, node } = kwds;
 
   if (node.equals(rdf.nil)) {
     return [];
@@ -41,7 +41,7 @@ export const getRdfList = (kwds: {
       break;
     default:
       throw new RangeError(
-        "rdf:first must point to a blank or named node or a literal"
+        "rdf:first must point to a blank or named node or a literal",
       );
   }
 
@@ -65,6 +65,6 @@ export const getRdfList = (kwds: {
       dataset,
       graph,
       node: restTerm,
-    })
+    }),
   );
 };

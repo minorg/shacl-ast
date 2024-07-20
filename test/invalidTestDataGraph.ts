@@ -1,4 +1,4 @@
-import {turtleStringToDatasetCore} from "./turtleStringToDatasetCore";
+import { turtleStringToDatasetCore } from "./turtleStringToDatasetCore";
 
 export const invalidTestDataGraph = turtleStringToDatasetCore(`
 @prefix paradicms: <http://paradicms.github.io/ns#> .

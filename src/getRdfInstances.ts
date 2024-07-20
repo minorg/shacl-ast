@@ -1,6 +1,6 @@
-import {BlankNode, DatasetCore, NamedNode} from "@rdfjs/types";
+import { BlankNode, DatasetCore, NamedNode } from "@rdfjs/types";
 import TermSet from "@rdfjs/term-set";
-import {getRdfInstanceQuads} from "./getRdfInstanceQuads";
+import { getRdfInstanceQuads } from "./getRdfInstanceQuads";
 
 /**
  * Get all unique RDF instances of a given class in the given dataset.
