@@ -8,8 +8,7 @@ import {
 import { DataFactory } from "n3";
 import { schema } from "@tpluscode/rdf-ns-builders";
 import { testShapesGraph } from "./testShapesGraph";
-import { invalidTestDataGraph } from "./invalidTestDataGraph";
-import { validTestDataGraph } from "./validTestDataGraph";
+import { validTestDataGraph } from "./testDataGraph";
 import { beforeAll, describe, it } from "vitest";
 
 describe("ShaclProcessor", () => {
