@@ -5,6 +5,7 @@ import { PropertyGroup } from "./PropertyGroup.js";
 import { NodeShape } from "./NodeShape.js";
 import { getRdfList } from "./getRdfList.js";
 import { requireNonNull } from "./requireNonNull.js";
+import { mapTermToNumber } from "./mapTermToNumber.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
