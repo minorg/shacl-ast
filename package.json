@@ -36,7 +36,6 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "tsc -b --clean",
-    "lint": "tsc -b --clean && eslint *.ts",
     "rebuild": "tsc -b --clean && tsc -b",
     "test": "vitest",
     "test:watch": "vitest watch",
