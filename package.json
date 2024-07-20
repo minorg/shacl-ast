@@ -1,7 +1,5 @@
 {
   "author": "Minor Gordon",
-  "name": "shacl-ast",
-  "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "dependencies": {
     "@rdfjs/term-map": "^2.0.2",
     "@rdfjs/term-set": "^2.0.3",
@@ -13,7 +11,9 @@
     "rdf-validate-shacl": "^0.5.5",
     "vitest": "^2.0.3"
   },
+  "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "devDependencies": {
+    "@tsconfig/strictest": "^2.0.5",
     "@types/n3": "^1.16.4",
     "n3": "^1.17.4",
     "prettier": "^3.3.3",
@@ -21,10 +21,14 @@
     "typescript": "^5.5"
   },
   "files": [
-    "dist"
+    "*.d.ts",
+    "*.d.ts.map",
+    "*.js",
+    "*.js.map"
   ],
   "license": "GPL-3.0-only",
   "main": "dist/index.js",
+  "name": "shacl-ast",
   "repository": {
     "type": "git",
     "url": "https://github.com/minorg/shacl-ast"
@@ -38,6 +42,7 @@
     "test:watch": "vitest watch",
     "watch": "tsc -w --preserveWatchOutput"
   },
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "types": "index.d.ts",
   "version": "1.0.5"
 }
