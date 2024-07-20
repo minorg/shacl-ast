@@ -1,5 +1,6 @@
-import {ShapesGraph} from "../src";
-import {testShapesGraph} from "./testShapesGraph";
+import { beforeAll, describe, it } from "vitest";
+import { ShapesGraph } from "../src";
+import { testShapesGraph } from "./testShapesGraph";
 
 describe("ShapesGraph", () => {
   let shapesGraph: ShapesGraph;
@@ -8,7 +9,7 @@ describe("ShapesGraph", () => {
     shapesGraph = ShapesGraph.fromDataset(testShapesGraph);
   });
 
-  it("should parse the shapes correctly", () => {
+  it("should parse the shapes correctly", ({ expect }) => {
     expect(shapesGraph.nodeShapes).toHaveLength(4);
     expect(shapesGraph.propertyShapes).toHaveLength(6);
   });

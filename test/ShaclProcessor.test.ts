@@ -1,10 +1,11 @@
-import {FocusNode, NodeShape, PropertyShape, ShapesGraph} from "../src";
-import {ShaclProcessor} from "../src/ShaclProcessor";
-import {DataFactory} from "n3";
-import {schema} from "@tpluscode/rdf-ns-builders";
-import {testShapesGraph} from "./testShapesGraph";
-import {invalidTestDataGraph} from "./invalidTestDataGraph";
-import {validTestDataGraph} from "./validTestDataGraph";
+import { FocusNode, NodeShape, PropertyShape, ShapesGraph } from "../src";
+import { ShaclProcessor } from "../src/ShaclProcessor";
+import { DataFactory } from "n3";
+import { schema } from "@tpluscode/rdf-ns-builders";
+import { testShapesGraph } from "./testShapesGraph";
+import { invalidTestDataGraph } from "./invalidTestDataGraph";
+import { validTestDataGraph } from "./validTestDataGraph";
+import { beforeAll, describe, it } from "vitest";
 
 describe("ShaclProcessor", () => {
   let shapesGraph: ShapesGraph;
@@ -13,7 +14,7 @@ describe("ShaclProcessor", () => {
     shapesGraph = ShapesGraph.fromDataset(testShapesGraph);
   });
 
-  it("should get the node shapes for a given rdf:type", () => {
+  it("should get the node shapes for a given rdf:type", ({ expect }) => {
     const nodeShapes: NodeShape[] = [];
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
@@ -25,7 +26,9 @@ describe("ShaclProcessor", () => {
     expect(nodeShapes).toHaveLength(1);
   });
 
-  it("should get the property shapes for a focus node that has them", () => {
+  it("should get the property shapes for a focus node that has them", ({
+    expect,
+  }) => {
     const propertyShapes: PropertyShape[] = [];
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
@@ -37,12 +40,14 @@ describe("ShaclProcessor", () => {
     expect(propertyShapes).toHaveLength(4);
     expect(
       propertyShapes.find((propertyShape) =>
-        propertyShape.path.equals(schema.givenName)
-      )
+        propertyShape.path.equals(schema.givenName),
+      ),
     ).toBeDefined();
   });
 
-  it("should get no property shapes for a focus node that has none", () => {
+  it("should get no property shapes for a focus node that has none", ({
+    expect,
+  }) => {
     const propertyShapes: PropertyShape[] = [];
     new ShaclProcessor({
       dataGraph: validTestDataGraph,
@@ -54,9 +59,9 @@ describe("ShaclProcessor", () => {
     expect(propertyShapes).toHaveLength(0);
   });
 
-  it("should get the focus nodes for a shape", () => {
+  it("should get the focus nodes for a shape", ({ expect }) => {
     const nodeShape = shapesGraph.nodeShapeByNode(
-      DataFactory.namedNode("http://schema.org/PersonShape")
+      DataFactory.namedNode("http://schema.org/PersonShape"),
     );
     const focusNodes: FocusNode[] = [];
     new ShaclProcessor({
@@ -69,7 +74,7 @@ describe("ShaclProcessor", () => {
     expect(focusNodes).toHaveLength(1);
   });
 
-  it("should validate a valid data graph", () => {
+  it("should validate a valid data graph", ({ expect }) => {
     const validationReport = new ShaclProcessor({
       dataGraph: validTestDataGraph,
       shapesGraph,
@@ -77,7 +82,7 @@ describe("ShaclProcessor", () => {
     expect(validationReport.results).toHaveLength(0);
   });
 
-  it("should validate an invalid data graph", () => {
+  it("should validate an invalid data graph", ({ expect }) => {
     const validationReport = new ShaclProcessor({
       dataGraph: invalidTestDataGraph,
       shapesGraph,
