@@ -14,16 +14,17 @@ import TermSet from "@rdfjs/term-set";
 import { requireDefined } from "./requireDefined.js";
 
 export class ShapesGraph {
-  readonly graphNode: BlankNode | DefaultGraph | NamedNode;
-  readonly nodeShapes: readonly NodeShape[];
   // @ts-ignore
   private readonly nodeShapesByNode: TermMap;
-  readonly propertyGroups: readonly PropertyGroup[];
   // @ts-ignore
   private readonly propertyGroupsByNode: TermMap;
-  readonly propertyShapes: readonly PropertyShape[];
   // @ts-ignore
   private readonly propertyShapesByNode: TermMap;
+
+  readonly graphNode: BlankNode | DefaultGraph | NamedNode;
+  readonly nodeShapes: readonly NodeShape[];
+  readonly propertyGroups: readonly PropertyGroup[];
+  readonly propertyShapes: readonly PropertyShape[];
 
   private constructor(readonly dataset: DatasetCore) {
     this.graphNode = ShapesGraph.readGraph(dataset);

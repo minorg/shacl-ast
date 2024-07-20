@@ -134,6 +134,41 @@ export class ShaclProcessor {
   }
 
   /**
+   * Some (existential quantification) method that traverses focus nodes of a shape.
+   */
+  someShapeFocusNodes(
+    callback: SomeShapeFocusNodeCallback,
+    shape: Shape,
+  ): boolean {
+    const seenFocusNodeSet = new TermSet<FocusNode>();
+
+    // The set of focus nodes for a shape may be identified as follows:
+    for (const someShapeFocusNodesMethod of [
+      // specified in a shape using target declarations
+      this.someShapeTargetNodeFocusNodes,
+      this.someShapeTargetClassFocusNodes,
+      this.someShapeImplicitClassTargetFocusNodes,
+      this.someShapeTargetSubjectsOfFocusNodes,
+      this.someShapeTargetObjectsOfFocusNodes,
+      // specified in any constraint that references a shape in parameters of shape-expecting constraint parameters (e.g. sh:node)
+      this.someShapeShNodeFocusNodes,
+    ]) {
+      if (
+        someShapeFocusNodesMethod.bind(this)(callback, seenFocusNodeSet, shape)
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  validate(): ValidationReport {
+    const validator = new SHACLValidator(this.shapesGraph.dataset);
+    return validator.validate(this.dataGraph);
+  }
+
+  /**
    * Some (existential quantification) method that traverses focus nodes that are instances of the shape if the shape is
    * an rdfs:Class or a sub-class of rdfs:Class (implicit class targets).
    */
@@ -308,40 +343,5 @@ export class ShaclProcessor {
       }
       return false;
     });
-  }
-
-  /**
-   * Some (existential quantification) method that traverses focus nodes of a shape.
-   */
-  someShapeFocusNodes(
-    callback: SomeShapeFocusNodeCallback,
-    shape: Shape,
-  ): boolean {
-    const seenFocusNodeSet = new TermSet<FocusNode>();
-
-    // The set of focus nodes for a shape may be identified as follows:
-    for (const someShapeFocusNodesMethod of [
-      // specified in a shape using target declarations
-      this.someShapeTargetNodeFocusNodes,
-      this.someShapeTargetClassFocusNodes,
-      this.someShapeImplicitClassTargetFocusNodes,
-      this.someShapeTargetSubjectsOfFocusNodes,
-      this.someShapeTargetObjectsOfFocusNodes,
-      // specified in any constraint that references a shape in parameters of shape-expecting constraint parameters (e.g. sh:node)
-      this.someShapeShNodeFocusNodes,
-    ]) {
-      if (
-        someShapeFocusNodesMethod.bind(this)(callback, seenFocusNodeSet, shape)
-      ) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  validate(): ValidationReport {
-    const validator = new SHACLValidator(this.shapesGraph.dataset);
-    return validator.validate(this.dataGraph);
   }
 }

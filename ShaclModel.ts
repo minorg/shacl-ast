@@ -20,24 +20,6 @@ export abstract class ShaclModel {
     return this.shapesGraph.dataset;
   }
 
-  protected findAndMapObject<T>(
-    property: NamedNode,
-    callback: (value: Term) => NonNullable | null,
-  ): NonNullable | null {
-    for (const quad of this.dataset.match(
-      this.node,
-      property,
-      null,
-      this.shapesGraph.graphNode,
-    )) {
-      const mappedObject: T | null = callback(quad.object);
-      if (mappedObject !== null) {
-        return mappedObject as NonNullable;
-      }
-    }
-    return null;
-  }
-
   protected filterAndMapObjects<T>(
     property: NamedNode,
     callback: (value: Term) => NonNullable | null,
@@ -55,5 +37,23 @@ export abstract class ShaclModel {
       }
     }
     return mappedObjects;
+  }
+
+  protected findAndMapObject<T>(
+    property: NamedNode,
+    callback: (value: Term) => NonNullable | null,
+  ): NonNullable | null {
+    for (const quad of this.dataset.match(
+      this.node,
+      property,
+      null,
+      this.shapesGraph.graphNode,
+    )) {
+      const mappedObject: T | null = callback(quad.object);
+      if (mappedObject !== null) {
+        return mappedObject as NonNullable;
+      }
+    }
+    return null;
   }
 }

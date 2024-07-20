@@ -9,17 +9,6 @@ import { mapTermToNumber } from "./mapTermToNumber.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
-const hasPropertyShapeValueTermType = (term: Term): boolean => {
-  switch (term.termType) {
-    case "BlankNode":
-    case "NamedNode":
-    case "Literal":
-      return true;
-    default:
-      return false;
-  }
-};
-
 export class PropertyShape extends Shape {
   get classes(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.class, (term) =>
@@ -166,3 +155,14 @@ export class PropertyShape extends Shape {
     );
   }
 }
+
+const hasPropertyShapeValueTermType = (term: Term): boolean => {
+  switch (term.termType) {
+    case "BlankNode":
+    case "NamedNode":
+    case "Literal":
+      return true;
+    default:
+      return false;
+  }
+};

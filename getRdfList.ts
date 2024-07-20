@@ -1,10 +1,4 @@
-import {
-  BlankNode,
-  DatasetCore,
-  DefaultGraph,
-  Literal,
-  NamedNode,
-} from "@rdfjs/types";
+import { BlankNode, DatasetCore, DefaultGraph, NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 
 export function* getRdfList({
