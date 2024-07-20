@@ -11,7 +11,6 @@ import { PropertyShape } from "./PropertyShape.js";
 import { PropertyGroup } from "./PropertyGroup.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
-import { requireDefined } from "./requireDefined.js";
 
 export class ShapesGraph {
   // @ts-ignore
@@ -51,15 +50,15 @@ export class ShapesGraph {
   }
 
   nodeShapeByNode(nodeShapeNode: BlankNode | NamedNode): NodeShape {
-    return requireDefined(this.nodeShapesByNode.get(nodeShapeNode));
+    return this.nodeShapesByNode.get(nodeShapeNode);
   }
 
   propertyGroupByNode(propertyGroupNode: NamedNode): PropertyGroup {
-    return requireDefined(this.propertyGroupsByNode.get(propertyGroupNode));
+    return this.propertyGroupsByNode.get(propertyGroupNode);
   }
 
   propertyShapeByNode(propertyShapeNode: BlankNode | NamedNode): PropertyShape {
-    return requireDefined(this.propertyShapesByNode.get(propertyShapeNode));
+    return this.propertyShapesByNode.get(propertyShapeNode);
   }
 
   private static readGraph(
