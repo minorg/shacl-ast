@@ -7,21 +7,20 @@ import {
 } from "..";
 import { DataFactory } from "n3";
 import { schema } from "@tpluscode/rdf-ns-builders";
-import { testShapesGraph } from "./testShapesGraph";
-import { validTestDataGraph } from "./testDataGraph";
 import { beforeAll, describe, it } from "vitest";
+import { testData } from "./testData";
 
 describe("ShaclProcessor", () => {
   let shapesGraph: ShapesGraph;
 
   beforeAll(() => {
-    shapesGraph = ShapesGraph.fromDataset(testShapesGraph);
+    shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
   });
 
   it("should get the node shapes for a given rdf:type", ({ expect }) => {
     const nodeShapes: NodeShape[] = [];
     new ShaclProcessor({
-      dataGraph: validTestDataGraph,
+      dataGraph: testData.dataGraph,
       shapesGraph,
     }).someRdfTypeNodeShapes((nodeShape) => {
       nodeShapes.push(nodeShape);
@@ -35,7 +34,7 @@ describe("ShaclProcessor", () => {
   }) => {
     const propertyShapes: PropertyShape[] = [];
     new ShaclProcessor({
-      dataGraph: validTestDataGraph,
+      dataGraph: testData.dataGraph,
       shapesGraph,
     }).someFocusNodePropertyShapes((propertyShape) => {
       propertyShapes.push(propertyShape);
@@ -54,7 +53,7 @@ describe("ShaclProcessor", () => {
   }) => {
     const propertyShapes: PropertyShape[] = [];
     new ShaclProcessor({
-      dataGraph: validTestDataGraph,
+      dataGraph: testData.dataGraph,
       shapesGraph,
     }).someFocusNodePropertyShapes((propertyShape) => {
       propertyShapes.push(propertyShape);
@@ -69,7 +68,7 @@ describe("ShaclProcessor", () => {
     );
     const focusNodes: FocusNode[] = [];
     new ShaclProcessor({
-      dataGraph: validTestDataGraph,
+      dataGraph: testData.dataGraph,
       shapesGraph,
     }).someShapeFocusNodes((focusNode) => {
       focusNodes.push(focusNode);

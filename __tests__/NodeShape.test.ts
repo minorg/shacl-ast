@@ -1,13 +1,13 @@
 import { ShapesGraph } from "..";
 import { DataFactory } from "n3";
-import { testShapesGraph } from "./testShapesGraph";
 import { beforeAll, describe, it } from "vitest";
+import { testData } from "./testData";
 
 describe("Shapes", () => {
   let shapes: ShapesGraph;
 
   beforeAll(() => {
-    shapes = ShapesGraph.fromDataset(testShapesGraph);
+    shapes = ShapesGraph.fromDataset(testData.shapesGraph);
   });
 
   it("should have properties", ({ expect }) => {
