@@ -8,6 +8,7 @@
     "@types/rdf-validate-shacl": "^0.4.7",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
+    "rdf-literal": "^1.3.2",
     "rdf-validate-shacl": "^0.5.5"
   },
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
