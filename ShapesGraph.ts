@@ -5,40 +5,42 @@ import {
   NamedNode,
   Term,
 } from "@rdfjs/types";
-import {rdf, sh} from "@tpluscode/rdf-ns-builders";
-import {NodeShape} from "./NodeShape";
-import {PropertyShape} from "./PropertyShape";
-import {PropertyGroup} from "./PropertyGroup";
+import { rdf, sh } from "@tpluscode/rdf-ns-builders";
+import { NodeShape } from "./NodeShape.js";
+import { PropertyShape } from "./PropertyShape.js";
+import { PropertyGroup } from "./PropertyGroup.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
-import {requireDefined} from "./requireDefined";
+import { requireDefined } from "./requireDefined.js";
 
 export class ShapesGraph {
+  // @ts-ignore
+  private readonly nodeShapesByNode: TermMap;
+  // @ts-ignore
+  private readonly propertyGroupsByNode: TermMap;
+  // @ts-ignore
+  private readonly propertyShapesByNode: TermMap;
+
   readonly graphNode: BlankNode | DefaultGraph | NamedNode;
   readonly nodeShapes: readonly NodeShape[];
-  // @ts-ignore
-  private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
   readonly propertyGroups: readonly PropertyGroup[];
-  // @ts-ignore
-  private readonly propertyGroupsByNode: TermMap<NamedNode, PropertyGroup>;
   readonly propertyShapes: readonly PropertyShape[];
-  // @ts-ignore
-  private readonly propertyShapesByNode: TermMap<
-    BlankNode | NamedNode,
-    PropertyShape
-  >;
 
   private constructor(readonly dataset: DatasetCore) {
     this.graphNode = ShapesGraph.readGraph(dataset);
 
-    const {nodeShapes, nodeShapesByNode, propertyShapes, propertyShapesByNode} =
-      ShapesGraph.readShapes(dataset, this.graphNode, this);
+    const {
+      nodeShapes,
+      nodeShapesByNode,
+      propertyShapes,
+      propertyShapesByNode,
+    } = ShapesGraph.readShapes(dataset, this.graphNode, this);
     this.nodeShapes = nodeShapes;
     this.nodeShapesByNode = nodeShapesByNode;
     this.propertyShapes = propertyShapes;
     this.propertyShapesByNode = propertyShapesByNode;
 
-    const {propertyGroups, propertyGroupsByNode} =
+    const { propertyGroups, propertyGroupsByNode } =
       ShapesGraph.readPropertyGroups(dataset, this.graphNode, this);
     this.propertyGroups = propertyGroups;
     this.propertyGroupsByNode = propertyGroupsByNode;
@@ -61,7 +63,7 @@ export class ShapesGraph {
   }
 
   private static readGraph(
-    dataset: DatasetCore
+    dataset: DatasetCore,
   ): BlankNode | DefaultGraph | NamedNode {
     const graphs = new TermSet();
     for (const quad of dataset) {
@@ -78,7 +80,7 @@ export class ShapesGraph {
         return graph;
       default:
         throw new RangeError(
-          `expected NamedNode or default graph, actual ${graph.termType}`
+          `expected NamedNode or default graph, actual ${graph.termType}`,
         );
     }
   }
@@ -86,14 +88,13 @@ export class ShapesGraph {
   private static readPropertyGroups(
     dataset: DatasetCore,
     graph: BlankNode | DefaultGraph | NamedNode,
-    shapesGraph: ShapesGraph
+    shapesGraph: ShapesGraph,
   ): {
     propertyGroups: PropertyGroup[];
-    propertyGroupsByNode: TermMap<NamedNode, PropertyGroup>;
+    propertyGroupsByNode: TermMap;
   } {
     const propertyGroups: PropertyGroup[] = [];
-    const propertyGroupsByNode: TermMap<NamedNode, PropertyGroup> =
-      new TermMap();
+    const propertyGroupsByNode: TermMap = new TermMap();
     for (const quad of dataset.match(null, rdf.type, sh.PropertyGroup, graph)) {
       const subject = quad.subject;
       if (subject.termType !== "NamedNode") {
@@ -101,22 +102,22 @@ export class ShapesGraph {
       } else if (propertyGroupsByNode.has(subject)) {
         continue;
       }
-      const propertyGroup = new PropertyGroup({node: subject, shapesGraph});
+      const propertyGroup = new PropertyGroup({ node: subject, shapesGraph });
       propertyGroups.push(propertyGroup);
       propertyGroupsByNode.set(subject, propertyGroup);
     }
-    return {propertyGroups, propertyGroupsByNode};
+    return { propertyGroups, propertyGroupsByNode };
   }
 
   private static readShapes(
     dataset: DatasetCore,
     graph: BlankNode | DefaultGraph | NamedNode,
-    shapesGraph: ShapesGraph
+    shapesGraph: ShapesGraph,
   ): {
     nodeShapes: NodeShape[];
-    nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
+    nodeShapesByNode: TermMap;
     propertyShapes: PropertyShape[];
-    propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape>;
+    propertyShapesByNode: TermMap;
   } {
     // Collect the shape identifiers in sets
     const shapeNodeSet = new TermSet<BlankNode | NamedNode>();
@@ -204,11 +205,9 @@ export class ShapesGraph {
 
     // Separate shapes into node and property shapes.
     const nodeShapes: NodeShape[] = [];
-    const nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape> =
-      new TermMap();
+    const nodeShapesByNode: TermMap = new TermMap();
     const propertyShapes: PropertyShape[] = [];
-    const propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape> =
-      new TermMap();
+    const propertyShapesByNode: TermMap = new TermMap();
 
     for (const shapeNode of shapeNodeSet) {
       if (dataset.match(shapeNode, sh.path, null, graph).size > 0) {
@@ -221,7 +220,7 @@ export class ShapesGraph {
         propertyShapesByNode.set(propertyShape.node, propertyShape);
       } else {
         // A node shape is a shape in the shapes graph that is not the subject of a triple with sh:path as its predicate. It is recommended, but not required, for a node shape to be declared as a SHACL instance of sh:NodeShape. SHACL instances of sh:NodeShape cannot have a value for the property sh:path.
-        const nodeShape = new NodeShape({node: shapeNode, shapesGraph});
+        const nodeShape = new NodeShape({ node: shapeNode, shapesGraph });
         nodeShapes.push(nodeShape);
         nodeShapesByNode.set(nodeShape.node, nodeShape);
       }

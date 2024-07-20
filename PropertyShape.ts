@@ -1,47 +1,36 @@
-import {Shape} from "./Shape";
-import {BlankNode, Literal, NamedNode, Term} from "@rdfjs/types";
-import {dash, sh, xsd} from "@tpluscode/rdf-ns-builders";
-import {PropertyGroup} from "./PropertyGroup";
-import {NodeShape} from "./NodeShape";
-import {mapTermToNumber} from "./mapTermToNumber";
-import {getRdfList} from "./getRdfList";
-import {requireNonNull} from "./requireNonNull";
+import { Shape } from "./Shape.js";
+import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
+import { dash, sh, xsd } from "@tpluscode/rdf-ns-builders";
+import { PropertyGroup } from "./PropertyGroup.js";
+import { NodeShape } from "./NodeShape.js";
+import { getRdfList } from "./getRdfList.js";
+import { requireNonNull } from "./requireNonNull.js";
+import { mapTermToNumber } from "./mapTermToNumber.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
-
-const hasPropertyShapeValueTermType = (term: Term): boolean => {
-  switch (term.termType) {
-    case "BlankNode":
-    case "NamedNode":
-    case "Literal":
-      return true;
-    default:
-      return false;
-  }
-};
 
 export class PropertyShape extends Shape {
   get classes(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.class, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 
   get datatype(): NamedNode | null {
     return this.findAndMapObject(sh.datatype, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 
   get defaultValue(): PropertyShapeValue | null {
     return this.findAndMapObject(sh.defaultValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null
+      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
     );
   }
 
   get editor(): NamedNode | null {
     return this.findAndMapObject(dash.editor, (term) =>
-      term.termType === "NamedNode" ? term : null
+      term.termType === "NamedNode" ? term : null,
     );
   }
 
@@ -49,13 +38,13 @@ export class PropertyShape extends Shape {
     return this.findAndMapObject(sh.group, (term) =>
       term.termType === "NamedNode"
         ? this.shapesGraph.propertyGroupByNode(term)
-        : null
+        : null,
     );
   }
 
   get hasValue(): PropertyShapeValue | null {
     return this.findAndMapObject(sh.hasValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null
+      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
     );
   }
 
@@ -64,10 +53,10 @@ export class PropertyShape extends Shape {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
-          return getRdfList({
+          return [...getRdfList({
             dataset: this.dataset,
             node: term,
-          });
+          })];
         default:
           return null;
       }
@@ -100,7 +89,7 @@ export class PropertyShape extends Shape {
       this.node,
       sh.or,
       null,
-      this.shapesGraph.graphNode
+      this.shapesGraph.graphNode,
     )) {
       switch (orQuad.object.termType) {
         case "BlankNode":
@@ -119,7 +108,7 @@ export class PropertyShape extends Shape {
           case "BlankNode":
           case "NamedNode":
             propertyShapes.push(
-              this.shapesGraph.propertyShapeByNode(propertyShapeNode)
+              this.shapesGraph.propertyShapeByNode(propertyShapeNode),
             );
             break;
         }
@@ -135,8 +124,8 @@ export class PropertyShape extends Shape {
   get path(): NamedNode {
     return requireNonNull(
       this.findAndMapObject(sh.path, (term) =>
-        term.termType === "NamedNode" ? (term as NamedNode) : null
-      )
+        term.termType === "NamedNode" ? (term as NamedNode) : null,
+      ),
     );
   }
 
@@ -162,7 +151,18 @@ export class PropertyShape extends Shape {
 
   get viewer(): NamedNode | null {
     return this.findAndMapObject(dash.viewer, (term) =>
-      term.termType === "NamedNode" ? (term as NamedNode) : null
+      term.termType === "NamedNode" ? (term as NamedNode) : null,
     );
   }
 }
+
+const hasPropertyShapeValueTermType = (term: Term): boolean => {
+  switch (term.termType) {
+    case "BlankNode":
+    case "NamedNode":
+    case "Literal":
+      return true;
+    default:
+      return false;
+  }
+};

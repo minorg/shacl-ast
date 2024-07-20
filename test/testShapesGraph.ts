@@ -1,4 +1,4 @@
-import {turtleStringToDatasetCore} from "./turtleStringToDatasetCore";
+import { turtleStringToDatasetCore } from "./turtleStringToDatasetCore";
 
 export const testShapesGraph = turtleStringToDatasetCore(`
 @prefix dash: <http://datashapes.org/dash#> .

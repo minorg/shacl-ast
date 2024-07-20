@@ -1,7 +1,7 @@
-import {Shape} from "./Shape";
-import {PropertyShape} from "./PropertyShape";
-import {BlankNode, NamedNode} from "@rdfjs/types";
-import {sh} from "@tpluscode/rdf-ns-builders";
+import { Shape } from "./Shape.js";
+import { PropertyShape } from "./PropertyShape.js";
+import { BlankNode, NamedNode } from "@rdfjs/types";
+import { sh } from "@tpluscode/rdf-ns-builders";
 
 export class NodeShape extends Shape {
   get properties(): readonly PropertyShape[] {
@@ -10,7 +10,7 @@ export class NodeShape extends Shape {
         case "BlankNode":
         case "NamedNode":
           return this.shapesGraph.propertyShapeByNode(
-            propertyObject as BlankNode | NamedNode
+            propertyObject as BlankNode | NamedNode,
           );
         default:
           return null;

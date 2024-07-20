@@ -3,34 +3,33 @@ import {
   DatasetCore,
   DefaultGraph,
   NamedNode,
-  Term,
 } from "@rdfjs/types";
-import {rdfs} from "@tpluscode/rdf-ns-builders";
+import { rdfs } from "@tpluscode/rdf-ns-builders";
 import TermSet from "@rdfjs/term-set";
 
-export const hasRdfSuperClass = (kwds: {
+export const isRdfSubClassOf = (kwds: {
   dataset: DatasetCore;
   graph?: BlankNode | DefaultGraph | NamedNode;
   subClass: NamedNode;
   superClass: NamedNode;
 }): boolean => {
-  return hasRdfSuperClassRecursive({...kwds, visited: new TermSet()});
+  return isRdfSubClassOfRecursive({ ...kwds, visited: new TermSet() });
 };
 
-const hasRdfSuperClassRecursive = (kwds: {
+const isRdfSubClassOfRecursive = (kwds: {
   dataset: DatasetCore;
   graph?: BlankNode | DefaultGraph | NamedNode;
   subClass: NamedNode;
   superClass: NamedNode;
-  visited: TermSet<Term>;
+  visited: TermSet;
 }): boolean => {
-  const {dataset, graph, subClass, superClass, visited} = kwds;
+  const { dataset, graph, subClass, superClass, visited } = kwds;
 
   for (const subClassOfQuad of dataset.match(
     subClass,
     rdfs.subClassOf,
     null,
-    graph
+    graph,
   )) {
     const immediateSuperClass = subClassOfQuad.object;
     if (immediateSuperClass.termType !== "NamedNode") {
@@ -48,7 +47,7 @@ const hasRdfSuperClassRecursive = (kwds: {
 
     // Go up the chain
     if (
-      hasRdfSuperClassRecursive({
+      isRdfSubClassOfRecursive({
         dataset,
         graph,
         subClass: immediateSuperClass,
