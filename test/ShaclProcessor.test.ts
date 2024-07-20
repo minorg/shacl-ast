@@ -1,5 +1,10 @@
-import { FocusNode, NodeShape, PropertyShape, ShapesGraph } from "../src";
-import { ShaclProcessor } from "../src/ShaclProcessor";
+import {
+  FocusNode,
+  NodeShape,
+  PropertyShape,
+  ShaclProcessor,
+  ShapesGraph,
+} from "..";
 import { DataFactory } from "n3";
 import { schema } from "@tpluscode/rdf-ns-builders";
 import { testShapesGraph } from "./testShapesGraph";

@@ -1,5 +1,5 @@
 import { beforeAll, describe, it } from "vitest";
-import { ShapesGraph } from "../src";
+import { ShapesGraph } from "..";
 import { testShapesGraph } from "./testShapesGraph";
 
 describe("ShapesGraph", () => {

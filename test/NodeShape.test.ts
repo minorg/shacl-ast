@@ -1,4 +1,4 @@
-import { ShapesGraph } from "../src";
+import { ShapesGraph } from "..";
 import { DataFactory } from "n3";
 import { testShapesGraph } from "./testShapesGraph";
 import { beforeAll, describe, it } from "vitest";
