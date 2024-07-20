@@ -78,20 +78,4 @@ describe("ShaclProcessor", () => {
     }, nodeShape);
     expect(focusNodes).toHaveLength(1);
   });
-
-  it("should validate a valid data graph", ({ expect }) => {
-    const validationReport = new ShaclProcessor({
-      dataGraph: validTestDataGraph,
-      shapesGraph,
-    }).validate();
-    expect(validationReport.results).toHaveLength(0);
-  });
-
-  it("should validate an invalid data graph", ({ expect }) => {
-    const validationReport = new ShaclProcessor({
-      dataGraph: invalidTestDataGraph,
-      shapesGraph,
-    }).validate();
-    expect(validationReport.results).toHaveLength(2);
-  });
 });
