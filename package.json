@@ -10,7 +10,8 @@
     "@types/rdf-validate-shacl": "^0.4.7",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
-    "rdf-validate-shacl": "^0.5.5"
+    "rdf-validate-shacl": "^0.5.5",
+    "vitest": "^2.0.3"
   },
   "devDependencies": {
     "@types/n3": "1.10.4",
