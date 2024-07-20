@@ -8,8 +8,7 @@
     "@types/rdf-validate-shacl": "^0.4.7",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
-    "rdf-validate-shacl": "^0.5.5",
-    "vitest": "^2.0.3"
+    "rdf-validate-shacl": "^0.5.5"
   },
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "devDependencies": {
@@ -18,7 +17,8 @@
     "n3": "^1.17.4",
     "prettier": "^3.3.3",
     "rimraf": "3.0.2",
-    "typescript": "^5.5"
+    "typescript": "^5.5",
+    "vitest": "^2.0.3"
   },
   "files": [
     "*.d.ts",
@@ -27,7 +27,6 @@
     "*.js.map"
   ],
   "license": "GPL-3.0-only",
-  "main": "dist/index.js",
   "name": "shacl-ast",
   "repository": {
     "type": "git",
