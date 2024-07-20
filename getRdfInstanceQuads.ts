@@ -2,64 +2,72 @@ import { DatasetCore, NamedNode, Quad } from "@rdfjs/types";
 import TermSet from "@rdfjs/term-set";
 import { rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 
+export interface GetRdfInstanceQuadsParameters {
+  class_: NamedNode;
+  dataset: DatasetCore;
+  excludeSubclasses?: boolean;
+  instanceOfPredicate?: NamedNode;
+  subClassOfPredicate?: NamedNode;
+}
+
 /**
  * Get all unique RDF instanceQuads of a given class in the given dataset.
  *
  * Returns the quads declaring an instance to be of the given class or one of its subclasses.
  */
-export const getRdfInstanceQuads = (kwds: {
-  class_: NamedNode;
-  dataset: DatasetCore;
-  includeSubclasses: boolean;
-  instanceOfPredicate?: NamedNode;
-  subClassOfPredicate?: NamedNode;
-}): TermSet<Quad> => {
-  const instanceQuads: TermSet<Quad> = new TermSet();
-  getRdfInstanceQuadsRecursive({
-    class_: kwds.class_,
-    dataset: kwds.dataset,
-    includeSubclasses: kwds.includeSubclasses,
-    instanceOfPredicate: kwds.instanceOfPredicate ?? rdf.type,
-    instanceQuads,
-    subClassOfPredicate: kwds.subClassOfPredicate ?? rdfs.subClassOf,
-    visitedClasses: new TermSet<NamedNode>(),
-  });
-  return instanceQuads;
-};
-
-const getRdfInstanceQuadsRecursive = (kwds: {
-  class_: NamedNode;
-  dataset: DatasetCore;
-  includeSubclasses: boolean;
-  instanceOfPredicate: NamedNode;
-  instanceQuads: TermSet<Quad>;
-  subClassOfPredicate: NamedNode;
-  visitedClasses: TermSet<NamedNode>;
-}): void => {
-  const {
+export function* getRdfInstanceQuads({
+  class_,
+  dataset,
+  excludeSubclasses,
+  instanceOfPredicate,
+  subClassOfPredicate,
+}: GetRdfInstanceQuadsParameters): Generator {
+  yield* getRdfInstanceQuadsRecursive({
     class_,
     dataset,
-    includeSubclasses,
-    instanceOfPredicate,
-    instanceQuads,
-    subClassOfPredicate,
-    visitedClasses,
-  } = kwds;
+    excludeSubclasses: excludeSubclasses ?? false,
+    instanceOfPredicate: instanceOfPredicate ?? rdf.type,
+    instanceQuads: new TermSet<Quad>(),
+    subClassOfPredicate: subClassOfPredicate ?? rdfs.subClassOf,
+    visitedClasses: new TermSet<NamedNode>(),
+  });
+}
 
+function* getRdfInstanceQuadsRecursive({
+  class_,
+  dataset,
+  excludeSubclasses,
+  instanceOfPredicate,
+  instanceQuads,
+  subClassOfPredicate,
+  visitedClasses,
+}: {
+  class_: NamedNode;
+  dataset: DatasetCore;
+  excludeSubclasses: boolean;
+  instanceOfPredicate: NamedNode;
+  instanceQuads: TermSet;
+  subClassOfPredicate: NamedNode;
+  visitedClasses: TermSet;
+}): Generator {
   // Get instanceQuads of the class
   for (const quad of dataset.match(null, instanceOfPredicate, class_)) {
     switch (quad.subject.termType) {
       case "BlankNode":
       case "NamedNode":
-        instanceQuads.add(quad);
+        if (!instanceQuads.has(quad)) {
+          yield quad;
+          instanceQuads.add(quad);
+        }
         break;
       default:
         break;
     }
   }
+
   visitedClasses.add(class_);
 
-  if (!includeSubclasses) {
+  if (excludeSubclasses) {
     return;
   }
 
@@ -70,14 +78,14 @@ const getRdfInstanceQuadsRecursive = (kwds: {
     } else if (visitedClasses.has(quad.subject)) {
       continue;
     }
-    getRdfInstanceQuadsRecursive({
+    yield* getRdfInstanceQuadsRecursive({
       class_: quad.subject,
       dataset,
-      includeSubclasses,
+      excludeSubclasses,
       instanceOfPredicate,
       instanceQuads,
       subClassOfPredicate,
       visitedClasses,
     });
   }
-};
+}

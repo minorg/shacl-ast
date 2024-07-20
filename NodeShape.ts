@@ -1,5 +1,5 @@
-import { Shape } from "./Shape";
-import { PropertyShape } from "./PropertyShape";
+import { Shape } from "./Shape.js";
+import { PropertyShape } from "./PropertyShape.js";
 import { BlankNode, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
 

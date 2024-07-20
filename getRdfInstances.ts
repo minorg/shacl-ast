@@ -1,20 +1,16 @@
-import { BlankNode, DatasetCore, NamedNode } from "@rdfjs/types";
-import TermSet from "@rdfjs/term-set";
-import { getRdfInstanceQuads } from "./getRdfInstanceQuads";
+import { BlankNode, NamedNode } from "@rdfjs/types";
+import {
+  getRdfInstanceQuads,
+  GetRdfInstanceQuadsParameters,
+} from "./getRdfInstanceQuads.js";
 
 /**
  * Get all unique RDF instances of a given class in the given dataset.
  */
-export const getRdfInstances = (kwds: {
-  class_: NamedNode;
-  dataset: DatasetCore;
-  includeSubclasses: boolean;
-  instanceOfPredicate?: NamedNode;
-  subClassOfPredicate?: NamedNode;
-}): TermSet<BlankNode | NamedNode> => {
-  const instances = new TermSet<BlankNode | NamedNode>();
+export function* getRdfInstances(
+  kwds: GetRdfInstanceQuadsParameters,
+): Generator {
   for (const instanceQuad of getRdfInstanceQuads(kwds)) {
-    instances.add(instanceQuad.subject as BlankNode | NamedNode);
+    yield instanceQuad.subject as BlankNode | NamedNode;
   }
-  return instances;
-};
+}

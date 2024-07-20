@@ -1,8 +1,8 @@
 import { ShaclModel } from "./ShaclModel";
 import { rdf, rdfs, sh } from "@tpluscode/rdf-ns-builders";
 import { Literal, NamedNode } from "@rdfjs/types";
-import { NodeKind } from "./NodeKind";
-import { hasRdfSuperClass } from "./hasRdfSuperClass";
+import { NodeKind } from "./NodeKind.js";
+import { isRdfSubClassOf } from "./isRdfSubClassOf.js";
 
 export class Shape extends ShaclModel {
   get description(): Literal | null {
@@ -17,7 +17,7 @@ export class Shape extends ShaclModel {
   get implicitClassTargets(): readonly NamedNode[] {
     return this.filterAndMapObjects(rdf.type, (term) =>
       term.termType === "NamedNode" &&
-      hasRdfSuperClass({
+      isRdfSubClassOf({
         dataset: this.dataset,
         graph: this.shapesGraph.graphNode,
         subClass: term,

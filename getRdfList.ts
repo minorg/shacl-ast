@@ -4,35 +4,29 @@ import {
   DefaultGraph,
   Literal,
   NamedNode,
-  Quad,
 } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 
-const firstQuad = (dataset: DatasetCore): Quad => {
-  for (const quad of dataset) {
-    return quad;
-  }
-  throw new EvalError("should never be reached");
-};
-
-export const getRdfList = (kwds: {
+export function* getRdfList({
+  dataset,
+  graph,
+  node,
+}: {
   dataset: DatasetCore;
   graph?: BlankNode | DefaultGraph | NamedNode;
   node: BlankNode | NamedNode;
-}): (BlankNode | NamedNode | Literal)[] => {
-  const { dataset, graph, node } = kwds;
-
+}): Generator {
   if (node.equals(rdf.nil)) {
-    return [];
+    return;
   }
 
-  const firstDataset = dataset.match(node, rdf.first, null, graph);
-  if (firstDataset.size === 0) {
+  const firstQuads = [...dataset.match(node, rdf.first, null, graph)];
+  if (firstQuads.length === 0) {
     throw new RangeError("RDF list has no rdf:first quad");
-  } else if (firstDataset.size > 1) {
+  } else if (firstQuads.length > 1) {
     throw new RangeError("RDF list has multiple rdf:first quads");
   }
-  const firstTerm = firstQuad(firstDataset).object;
+  const firstTerm = firstQuads[0].object;
   switch (firstTerm.termType) {
     case "BlankNode":
     case "Literal":
@@ -44,13 +38,13 @@ export const getRdfList = (kwds: {
       );
   }
 
-  const restDataset = dataset.match(node, rdf.rest, null, graph);
-  if (restDataset.size === 0) {
+  const restQuads = [...dataset.match(node, rdf.rest, null, graph)];
+  if (restQuads.length === 0) {
     throw new RangeError("RDF list has no rdf:rest quad");
-  } else if (restDataset.size > 1) {
+  } else if (restQuads.length > 1) {
     throw new RangeError("RDF list has multiple rdf:rest quads");
   }
-  const restTerm = firstQuad(restDataset).object;
+  const restTerm = restQuads[0].object;
   switch (restTerm.termType) {
     case "BlankNode":
     case "NamedNode":
@@ -59,11 +53,11 @@ export const getRdfList = (kwds: {
       throw new RangeError("rdf:rest must point to a blank or named node");
   }
 
-  return [firstTerm].concat(
-    getRdfList({
-      dataset,
-      graph,
-      node: restTerm,
-    }),
-  );
-};
+  yield firstTerm;
+
+  yield* getRdfList({
+    dataset,
+    graph,
+    node: restTerm,
+  });
+}

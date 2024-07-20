@@ -1,11 +1,10 @@
-import { Shape } from "./Shape";
+import { Shape } from "./Shape.js";
 import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
 import { dash, sh, xsd } from "@tpluscode/rdf-ns-builders";
-import { PropertyGroup } from "./PropertyGroup";
-import { NodeShape } from "./NodeShape";
-import { mapTermToNumber } from "./mapTermToNumber";
-import { getRdfList } from "./getRdfList";
-import { requireNonNull } from "./requireNonNull";
+import { PropertyGroup } from "./PropertyGroup.js";
+import { NodeShape } from "./NodeShape.js";
+import { getRdfList } from "./getRdfList.js";
+import { requireNonNull } from "./requireNonNull.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 

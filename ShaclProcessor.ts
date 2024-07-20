@@ -1,16 +1,16 @@
 import { BlankNode, NamedNode } from "@rdfjs/types";
-import { Shape } from "./Shape";
-import { FocusNode } from "./FocusNode";
-import { DataGraph } from "./DataGraph";
-import { ShapesGraph } from "./ShapesGraph";
+import { Shape } from "./Shape.js";
+import { FocusNode } from "./FocusNode.js";
+import { DataGraph } from "./DataGraph.js";
+import { ShapesGraph } from "./ShapesGraph.js";
 import * as ValidationReport from "rdf-validate-shacl/src/validation-report";
 import SHACLValidator from "rdf-validate-shacl";
 import TermSet from "@rdfjs/term-set";
-import { PropertyShape } from "./PropertyShape";
-import { NodeShape } from "./NodeShape";
-import { NodeKind } from "./NodeKind";
-import { hasRdfSuperClass } from "./hasRdfSuperClass";
-import { getRdfInstances } from "./getRdfInstances";
+import { PropertyShape } from "./PropertyShape.js";
+import { NodeShape } from "./NodeShape.js";
+import { NodeKind } from "./NodeKind.js";
+import { isRdfSubClassOf } from "./isRdfSubClassOf.js";
+import { getRdfInstances } from "./getRdfInstances.js";
 
 type SomeShapeFocusNodeCallback = (focusNode: FocusNode) => boolean;
 
@@ -96,7 +96,7 @@ export class ShaclProcessor {
       for (const targetClass of nodeShape.targetClasses) {
         if (
           rdfType.equals(targetClass) ||
-          hasRdfSuperClass({
+          isRdfSubClassOf({
             dataset: this.shapesGraph.dataset,
             subClass: rdfType,
             superClass: targetClass,
@@ -109,7 +109,7 @@ export class ShaclProcessor {
       for (const targetClass of nodeShape.implicitClassTargets) {
         if (
           rdfType.equals(targetClass) ||
-          hasRdfSuperClass({
+          isRdfSubClassOf({
             dataset: this.shapesGraph.dataset,
             subClass: rdfType,
             superClass: targetClass,

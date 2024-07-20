@@ -1,7 +1,7 @@
 import { Literal, NamedNode } from "@rdfjs/types";
-import { ShapesGraph } from "./ShapesGraph";
+import { ShapesGraph } from "./ShapesGraph.js";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
-import { ShaclModel } from "./ShaclModel";
+import { ShaclModel } from "./ShaclModel.js";
 
 export class PropertyGroup extends ShaclModel {
   constructor(kwds: { node: NamedNode; shapesGraph: ShapesGraph }) {
