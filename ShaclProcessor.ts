@@ -3,8 +3,6 @@ import { Shape } from "./Shape.js";
 import { FocusNode } from "./FocusNode.js";
 import { DataGraph } from "./DataGraph.js";
 import { ShapesGraph } from "./ShapesGraph.js";
-import * as ValidationReport from "rdf-validate-shacl/src/validation-report";
-import SHACLValidator from "rdf-validate-shacl";
 import TermSet from "@rdfjs/term-set";
 import { PropertyShape } from "./PropertyShape.js";
 import { NodeShape } from "./NodeShape.js";
@@ -161,11 +159,6 @@ export class ShaclProcessor {
     }
 
     return false;
-  }
-
-  validate(): ValidationReport {
-    const validator = new SHACLValidator(this.shapesGraph.dataset);
-    return validator.validate(this.dataGraph);
   }
 
   /**
