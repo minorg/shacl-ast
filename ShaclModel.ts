@@ -22,9 +22,9 @@ export abstract class ShaclModel {
 
   protected filterAndMapObjects<T>(
     property: NamedNode,
-    callback: (value: Term) => NonNullable | null,
-  ): readonly NonNullable[] {
-    const mappedObjects: NonNullable[] = [];
+    callback: (value: Term) => NonNullable<T> | null,
+  ): readonly NonNullable<T>[] {
+    const mappedObjects: NonNullable<T>[] = [];
     for (const quad of this.dataset.match(
       this.node,
       property,
@@ -33,7 +33,7 @@ export abstract class ShaclModel {
     )) {
       const mappedObject: T | null = callback(quad.object);
       if (mappedObject !== null) {
-        mappedObjects.push(mappedObject as NonNullable);
+        mappedObjects.push(mappedObject as NonNullable<T>);
       }
     }
     return mappedObjects;
@@ -41,8 +41,8 @@ export abstract class ShaclModel {
 
   protected findAndMapObject<T>(
     property: NamedNode,
-    callback: (value: Term) => NonNullable | null,
-  ): NonNullable | null {
+    callback: (value: Term) => NonNullable<T> | null,
+  ): NonNullable<T> | null {
     for (const quad of this.dataset.match(
       this.node,
       property,
@@ -51,7 +51,7 @@ export abstract class ShaclModel {
     )) {
       const mappedObject: T | null = callback(quad.object);
       if (mappedObject !== null) {
-        return mappedObject as NonNullable;
+        return mappedObject as NonNullable<T>;
       }
     }
     return null;

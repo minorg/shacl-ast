@@ -21,7 +21,7 @@ export function* getRdfInstanceQuads({
   excludeSubclasses,
   instanceOfPredicate,
   subClassOfPredicate,
-}: GetRdfInstanceQuadsParameters): Generator {
+}: GetRdfInstanceQuadsParameters): Generator<Quad> {
   yield* getRdfInstanceQuadsRecursive({
     class_,
     dataset,
@@ -49,7 +49,7 @@ function* getRdfInstanceQuadsRecursive({
   instanceQuads: TermSet;
   subClassOfPredicate: NamedNode;
   visitedClasses: TermSet;
-}): Generator {
+}): Generator<Quad> {
   // Get instanceQuads of the class
   for (const quad of dataset.match(null, instanceOfPredicate, class_)) {
     switch (quad.subject.termType) {

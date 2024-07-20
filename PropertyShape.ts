@@ -53,10 +53,10 @@ export class PropertyShape extends Shape {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
-          return getRdfList({
+          return [...getRdfList({
             dataset: this.dataset,
             node: term,
-          });
+          })];
         default:
           return null;
       }

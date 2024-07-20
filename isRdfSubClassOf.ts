@@ -3,7 +3,6 @@ import {
   DatasetCore,
   DefaultGraph,
   NamedNode,
-  Term,
 } from "@rdfjs/types";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
 import TermSet from "@rdfjs/term-set";

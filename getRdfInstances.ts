@@ -9,7 +9,7 @@ import {
  */
 export function* getRdfInstances(
   kwds: GetRdfInstanceQuadsParameters,
-): Generator {
+): Generator<BlankNode | NamedNode> {
   for (const instanceQuad of getRdfInstanceQuads(kwds)) {
     yield instanceQuad.subject as BlankNode | NamedNode;
   }

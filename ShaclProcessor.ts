@@ -183,7 +183,6 @@ export class ShaclProcessor {
       for (const focusNode of getRdfInstances({
         class_: rdfType,
         dataset: this.dataGraph,
-        includeSubclasses: true,
       })) {
         if (seenFocusNodeSet.add(focusNode) && callback(focusNode)) {
           return true;
@@ -251,7 +250,6 @@ export class ShaclProcessor {
       for (const focusNode of getRdfInstances({
         class_: targetClass,
         dataset: this.dataGraph,
-        includeSubclasses: true,
       })) {
         if (seenFocusNodeSet.add(focusNode) && callback(focusNode)) {
           return true;
