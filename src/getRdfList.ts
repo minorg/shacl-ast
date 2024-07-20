@@ -29,7 +29,6 @@ export const getRdfList = (kwds: {
   const firstDataset = dataset.match(node, rdf.first, null, graph);
   if (firstDataset.size === 0) {
     throw new RangeError("RDF list has no rdf:first quad");
-    1;
   } else if (firstDataset.size > 1) {
     throw new RangeError("RDF list has multiple rdf:first quads");
   }

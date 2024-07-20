@@ -139,7 +139,7 @@ export class ShaclProcessor {
    */
   private someShapeImplicitClassTargetFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     // If the shape has an rdf:type of rdfs:Class or a sub-class of rdfs:Class,
@@ -164,7 +164,7 @@ export class ShaclProcessor {
    */
   private someShapeShNodeFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     if (!(shape instanceof NodeShape)) {
@@ -209,7 +209,7 @@ export class ShaclProcessor {
    */
   private someShapeTargetClassFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     return shape.targetClasses.some((targetClass) => {
@@ -231,7 +231,7 @@ export class ShaclProcessor {
    */
   private someShapeTargetNodeFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     // A node target is specified using the sh:targetNode predicate. Each value of sh:targetNode in a shape is either an IRI or a literal.
@@ -257,7 +257,7 @@ export class ShaclProcessor {
    */
   private someShapeTargetObjectsOfFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetObjectsOf in SG then the set of nodes in a data graph DG that are objects of triples in DG with predicate p is a target from DG for s in SG.
@@ -274,6 +274,7 @@ export class ShaclProcessor {
             if (callback(quad.object)) {
               return true;
             }
+            break;
           default:
             return false;
         }
@@ -288,7 +289,7 @@ export class ShaclProcessor {
    */
   private someShapeTargetSubjectsOfFocusNodes(
     callback: SomeShapeFocusNodeCallback,
-    seenFocusNodeSet: TermSet<FocusNode>,
+    seenFocusNodeSet: TermSet,
     shape: Shape,
   ): boolean {
     // If s is a shape in a shapes graph SG and s has value p for sh:targetSubjectsOf in SG then the set of nodes in a data graph DG that are subjects of triples in DG with predicate p is a target from DG for s in SG.
