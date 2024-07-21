@@ -10,7 +10,7 @@ describe("ShapesGraph", () => {
   });
 
   it("should parse the shapes correctly", ({ expect }) => {
-    expect(shapesGraph.nodeShapes).toHaveLength(4);
-    expect(shapesGraph.propertyShapes).toHaveLength(6);
+    expect(shapesGraph.nodeShapes).toHaveLength(84);
+    expect(shapesGraph.propertyShapes).toHaveLength(70);
   });
 });

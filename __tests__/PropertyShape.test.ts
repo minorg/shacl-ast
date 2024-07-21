@@ -6,27 +6,17 @@ import { schema, xsd } from "@tpluscode/rdf-ns-builders";
 import { NamedNode } from "@rdfjs/types";
 
 describe("PropertyShape", () => {
-  let addressNodeShape: NodeShape;
-  let personNodeShape: NodeShape;
+  let shapesGraph: ShapesGraph;
 
   beforeAll(() => {
-    const shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
-
-    addressNodeShape = shapesGraph
-      .nodeShapeByNode(DataFactory.namedNode("http://schema.org/AddressShape"))
-      .unsafeCoerce();
-    expect(addressNodeShape).toBeDefined();
-
-    personNodeShape = shapesGraph
-      .nodeShapeByNode(DataFactory.namedNode("http://schema.org/PersonShape"))
-      .unsafeCoerce();
-    expect(personNodeShape).toBeDefined();
+    shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
   });
 
   const findPropertyShape = (
-    nodeShape: NodeShape,
+    nodeShapeNode: NamedNode,
     path: NamedNode,
   ): PropertyShape => {
+    const nodeShape = shapesGraph.nodeShapeByNode(nodeShapeNode).unsafeCoerce();
     const propertyShape = nodeShape.constraints.properties.find(
       (propertyShape) => propertyShape.path.equals(path),
     );
@@ -37,15 +27,15 @@ describe("PropertyShape", () => {
   it("should have a datatype", ({ expect }) => {
     expect(
       findPropertyShape(
-        personNodeShape,
+        schema.Person,
         schema.givenName,
       ).constraints.datatype.extractNullable()?.value,
     ).toStrictEqual(xsd.string.value);
 
     expect(
       findPropertyShape(
-        personNodeShape,
-        schema.gender,
+        schema.Person,
+        schema.parent,
       ).constraints.datatype.extractNullable(),
     ).toBeNull();
   });
@@ -53,7 +43,7 @@ describe("PropertyShape", () => {
   it("should have a maxCount", ({ expect }) => {
     expect(
       findPropertyShape(
-        personNodeShape,
+        schema.Person,
         schema.birthDate,
       ).constraints.maxCount.extractNullable(),
     ).toStrictEqual(1);
@@ -61,24 +51,19 @@ describe("PropertyShape", () => {
 
   it("should have a name", ({ expect }) => {
     expect(
-      findPropertyShape(
-        personNodeShape,
-        schema.givenName,
-      ).name.extractNullable()?.value,
+      findPropertyShape(schema.Person, schema.givenName).name.extractNullable()
+        ?.value,
     ).toStrictEqual("given name");
   });
 
   it("should have a sh:node", () => {
-    const nodeShapes = findPropertyShape(personNodeShape, schema.address)
+    const nodeShapes = findPropertyShape(schema.Vehicle, schema.fuelConsumption)
       .constraints.nodes;
     expect(nodeShapes).toHaveLength(1);
-    expect(nodeShapes[0].node.value).toStrictEqual(
-      "http://schema.org/AddressShape",
-    );
   });
 
   it("should have sh:in", ({ expect }) => {
-    const propertyShape = findPropertyShape(personNodeShape, schema.gender);
+    const propertyShape = findPropertyShape(schema.Person, schema.gender);
     const in_ = propertyShape.constraints.in_.orDefault([]);
     expect(in_).toHaveLength(2);
     expect(
@@ -95,23 +80,21 @@ describe("PropertyShape", () => {
 
   it("should have sh:or", ({ expect }) => {
     const propertyShape = findPropertyShape(
-      addressNodeShape,
-      schema.postalCode,
+      schema.DatedMoneySpecification,
+      schema.endDate,
     );
     const or = propertyShape.constraints.or;
     expect(or).toHaveLength(2);
     expect(
       or.some((propertyShape) =>
-        propertyShape.constraints.datatype
-          .extractNullable()
-          ?.equals(xsd.string),
+        propertyShape.constraints.datatype.extractNullable()?.equals(xsd.date),
       ),
     ).toStrictEqual(true);
     expect(
       or.some((propertyShape) =>
         propertyShape.constraints.datatype
           .extractNullable()
-          ?.equals(xsd.integer),
+          ?.equals(xsd.dateTime),
       ),
     ).toStrictEqual(true);
   });

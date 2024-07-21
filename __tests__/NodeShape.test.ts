@@ -1,34 +1,28 @@
-import { NodeShape, ShapesGraph } from "..";
-import { DataFactory } from "n3";
-import { beforeAll, describe, expect, it } from "vitest";
+import { ShapesGraph } from "..";
+import { beforeAll, describe, it } from "vitest";
 import { testData } from "./testData";
+import { schema } from "@tpluscode/rdf-ns-builders";
 
 describe("NodeShape", () => {
-  let addressNodeShape: NodeShape;
-  let personNodeShape: NodeShape;
+  let shapesGraph: ShapesGraph;
 
   beforeAll(() => {
-    const shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
-
-    addressNodeShape = shapesGraph
-      .nodeShapeByNode(DataFactory.namedNode("http://schema.org/AddressShape"))
-      .unsafeCoerce();
-    expect(addressNodeShape).toBeDefined();
-
-    personNodeShape = shapesGraph
-      .nodeShapeByNode(DataFactory.namedNode("http://schema.org/PersonShape"))
-      .unsafeCoerce();
-    expect(personNodeShape).toBeDefined();
+    shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
   });
 
   it("should have properties", ({ expect }) => {
-    expect(personNodeShape.constraints.properties).toHaveLength(4);
-    expect(addressNodeShape.constraints.properties).toHaveLength(2);
+    expect(
+      shapesGraph.nodeShapeByNode(schema.Person).unsafeCoerce().constraints
+        .properties,
+    ).toHaveLength(9);
   });
 
-  it("should be closed", ({ expect }) => {
-    expect(addressNodeShape.constraints.closed.unsafeCoerce()).toStrictEqual(
-      true,
-    );
+  it("should get closed true", ({ expect }) => {
+    expect(
+      shapesGraph
+        .nodeShapeByNode(schema.DatedMoneySpecification)
+        .unsafeCoerce()
+        .constraints.closed.unsafeCoerce(),
+    ).toStrictEqual(true);
   });
 });
