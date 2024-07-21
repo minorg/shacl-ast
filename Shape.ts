@@ -89,8 +89,32 @@ export namespace Shape {
       return this.findAndMapObject(sh.maxCount, mapTermToNumber);
     }
 
+    get maxExclusive(): Maybe<Literal> {
+      return this.findAndMapObject(sh.maxExclusive, (term) =>
+        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
+      );
+    }
+
+    get maxInclusive(): Maybe<Literal> {
+      return this.findAndMapObject(sh.maxInclusive, (term) =>
+        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
+      );
+    }
+
     get minCount(): Maybe<number> {
       return this.findAndMapObject(sh.minCount, mapTermToNumber);
+    }
+
+    get minExclusive(): Maybe<Literal> {
+      return this.findAndMapObject(sh.minExclusive, (term) =>
+        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
+      );
+    }
+
+    get minInclusive(): Maybe<Literal> {
+      return this.findAndMapObject(sh.minInclusive, (term) =>
+        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
+      );
     }
 
     get nodeKinds(): readonly NodeKind[] {
