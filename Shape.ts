@@ -1,4 +1,4 @@
-import { ShaclModel } from "./ShaclModel";
+import { Resource } from "./Resource";
 import { rdf, rdfs, sh } from "@tpluscode/rdf-ns-builders";
 import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "./NodeKind.js";
@@ -8,7 +8,7 @@ import { getRdfList } from "./getRdfList.js";
 import { NodeShape } from "./NodeShape.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
 
-export class Shape extends ShaclModel {
+export class Shape extends Resource {
   get classes(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.class, (term) =>
       term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
@@ -163,4 +163,8 @@ export class Shape extends ShaclModel {
       term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
+}
+
+export namespace Shape {
+  export class Constraints {}
 }

@@ -2,7 +2,7 @@ import { BlankNode, NamedNode, Term } from "@rdfjs/types";
 import { ShapesGraph } from "./ShapesGraph.js";
 import { Maybe } from "purify-ts";
 
-export abstract class ShaclModel {
+export abstract class Resource {
   readonly node: BlankNode | NamedNode;
   readonly shapesGraph: ShapesGraph;
 
