@@ -2,13 +2,10 @@ import { Shape } from "./Shape.js";
 import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, sh } from "@tpluscode/rdf-ns-builders";
 import { PropertyGroup } from "./PropertyGroup.js";
-import { getRdfList } from "./getRdfList.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
 import { Maybe } from "purify-ts";
 import { mapTermToBoolean } from "./mapTermToBoolean.js";
 import { Resource } from "./Resource.js";
-
-type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
 export class PropertyShape extends Shape {
   readonly constraints: PropertyShape.Constraints;
