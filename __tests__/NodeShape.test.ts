@@ -22,11 +22,13 @@ describe("NodeShape", () => {
   });
 
   it("should have properties", ({ expect }) => {
-    expect(personNodeShape.properties).toHaveLength(4);
-    expect(addressNodeShape.properties).toHaveLength(2);
+    expect(personNodeShape.constraints.properties).toHaveLength(4);
+    expect(addressNodeShape.constraints.properties).toHaveLength(2);
   });
 
   it("should be closed", ({ expect }) => {
-    expect(addressNodeShape.closed.unsafeCoerce()).toStrictEqual(true);
+    expect(addressNodeShape.constraints.closed.unsafeCoerce()).toStrictEqual(
+      true,
+    );
   });
 });

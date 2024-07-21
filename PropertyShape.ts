@@ -6,21 +6,16 @@ import { getRdfList } from "./getRdfList.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
 import { Maybe } from "purify-ts";
 import { mapTermToBoolean } from "./mapTermToBoolean.js";
+import { Resource } from "./Resource.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
 export class PropertyShape extends Shape {
-  get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
-    return this.findAndMapObject(sh.defaultValue, (term) => {
-      switch (term.termType) {
-        case "BlankNode":
-        case "NamedNode":
-        case "Literal":
-          return Maybe.of(term);
-        default:
-          return Maybe.empty();
-      }
-    });
+  readonly constraints: PropertyShape.Constraints;
+
+  constructor(parameters: Resource.Parameters) {
+    super(parameters);
+    this.constraints = new PropertyShape.Constraints(parameters);
   }
 
   get editor(): Maybe<NamedNode> {
@@ -35,23 +30,6 @@ export class PropertyShape extends Shape {
         ? this.shapesGraph.propertyGroupByNode(term)
         : Maybe.empty(),
     );
-  }
-
-  get in_(): Maybe<readonly PropertyShapeValue[]> {
-    return this.findAndMapObject(sh.in, (term) => {
-      switch (term.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          return Maybe.of([
-            ...getRdfList({
-              dataset: this.dataset,
-              node: term,
-            }),
-          ]);
-        default:
-          return Maybe.empty();
-      }
-    });
   }
 
   get order(): Maybe<number> {
@@ -72,5 +50,22 @@ export class PropertyShape extends Shape {
     return this.findAndMapObject(dash.viewer, (term) =>
       term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
+  }
+}
+
+export namespace PropertyShape {
+  export class Constraints extends Shape.Constraints {
+    get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
+      return this.findAndMapObject(sh.defaultValue, (term) => {
+        switch (term.termType) {
+          case "BlankNode":
+          case "NamedNode":
+          case "Literal":
+            return Maybe.of(term);
+          default:
+            return Maybe.empty();
+        }
+      });
+    }
   }
 }

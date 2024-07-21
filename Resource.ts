@@ -6,13 +6,7 @@ export abstract class Resource {
   readonly node: BlankNode | NamedNode;
   readonly shapesGraph: ShapesGraph;
 
-  constructor({
-    node,
-    shapesGraph,
-  }: {
-    node: BlankNode | NamedNode;
-    shapesGraph: ShapesGraph;
-  }) {
+  constructor({ node, shapesGraph }: Resource.Parameters) {
     this.node = node;
     this.shapesGraph = shapesGraph;
   }
@@ -56,5 +50,12 @@ export abstract class Resource {
       }
     }
     return Maybe.empty();
+  }
+}
+
+export namespace Resource {
+  export interface Parameters {
+    node: BlankNode | NamedNode;
+    shapesGraph: ShapesGraph;
   }
 }

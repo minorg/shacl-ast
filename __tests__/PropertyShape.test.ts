@@ -27,8 +27,8 @@ describe("PropertyShape", () => {
     nodeShape: NodeShape,
     path: NamedNode,
   ): PropertyShape => {
-    const propertyShape = nodeShape.properties.find((propertyShape) =>
-      propertyShape.path.equals(path),
+    const propertyShape = nodeShape.constraints.properties.find(
+      (propertyShape) => propertyShape.path.equals(path),
     );
     expect(propertyShape).toBeDefined();
     return propertyShape!;
@@ -39,14 +39,14 @@ describe("PropertyShape", () => {
       findPropertyShape(
         personNodeShape,
         schema.givenName,
-      ).datatype.extractNullable()?.value,
+      ).constraints.datatype.extractNullable()?.value,
     ).toStrictEqual(xsd.string.value);
 
     expect(
       findPropertyShape(
         personNodeShape,
         schema.gender,
-      ).datatype.extractNullable(),
+      ).constraints.datatype.extractNullable(),
     ).toBeNull();
   });
 
@@ -55,7 +55,7 @@ describe("PropertyShape", () => {
       findPropertyShape(
         personNodeShape,
         schema.birthDate,
-      ).maxCount.extractNullable(),
+      ).constraints.maxCount.extractNullable(),
     ).toStrictEqual(1);
   });
 
@@ -68,11 +68,9 @@ describe("PropertyShape", () => {
     ).toStrictEqual("given name");
   });
 
-  it("should have a node shape", () => {
-    const nodeShapes = findPropertyShape(
-      personNodeShape,
-      schema.address,
-    ).nodeShapes;
+  it("should have a sh:node", () => {
+    const nodeShapes = findPropertyShape(personNodeShape, schema.address)
+      .constraints.nodes;
     expect(nodeShapes).toHaveLength(1);
     expect(nodeShapes[0].node.value).toStrictEqual(
       "http://schema.org/AddressShape",
@@ -81,7 +79,7 @@ describe("PropertyShape", () => {
 
   it("should have sh:in", ({ expect }) => {
     const propertyShape = findPropertyShape(personNodeShape, schema.gender);
-    const in_ = propertyShape.in_.orDefault([]);
+    const in_ = propertyShape.constraints.in_.orDefault([]);
     expect(in_).toHaveLength(2);
     expect(
       in_.find(
@@ -100,16 +98,20 @@ describe("PropertyShape", () => {
       addressNodeShape,
       schema.postalCode,
     );
-    const or = propertyShape.or;
+    const or = propertyShape.constraints.or;
     expect(or).toHaveLength(2);
     expect(
       or.some((propertyShape) =>
-        propertyShape.datatype.extractNullable()?.equals(xsd.string),
+        propertyShape.constraints.datatype
+          .extractNullable()
+          ?.equals(xsd.string),
       ),
     ).toStrictEqual(true);
     expect(
       or.some((propertyShape) =>
-        propertyShape.datatype.extractNullable()?.equals(xsd.integer),
+        propertyShape.constraints.datatype
+          .extractNullable()
+          ?.equals(xsd.integer),
       ),
     ).toStrictEqual(true);
   });
