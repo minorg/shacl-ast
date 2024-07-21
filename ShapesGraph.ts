@@ -12,6 +12,9 @@ import { PropertyGroup } from "./PropertyGroup.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import { Maybe } from "purify-ts";
+import { getRdfList } from "./getRdfList.js";
+import { Shape } from "./Shape.js";
+import { getRdfInstances } from "./getRdfInstances.js";
 
 export class ShapesGraph {
   private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
@@ -120,9 +123,9 @@ export class ShapesGraph {
     graph: BlankNode | DefaultGraph | NamedNode,
     shapesGraph: ShapesGraph,
   ): {
-    nodeShapes: NodeShape[];
+    nodeShapes: readonly NodeShape[];
     nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
-    propertyShapes: PropertyShape[];
+    propertyShapes: readonly PropertyShape[];
     propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape>;
   } {
     // Collect the shape identifiers in sets
@@ -143,8 +146,8 @@ export class ShapesGraph {
 
     // Subject is a SHACL instance of sh:NodeShape or sh:PropertyShape
     for (const rdfType of [sh.NodeShape, sh.PropertyShape]) {
-      for (const quad of dataset.match(null, rdf.type, rdfType, graph)) {
-        addShapeNode(quad.subject);
+      for (const rdfInstance of getRdfInstances({ class_: rdfType, dataset })) {
+        addShapeNode(rdfInstance);
       }
     }
 
@@ -202,10 +205,36 @@ export class ShapesGraph {
     }
 
     // Object of a shape-expecting, non-list-taking parameter such as sh:node
-    // TODO: handle list-taking parameters
     for (const predicate of [sh.node, sh.property]) {
-      for (const quad of dataset.match(null, predicate, graph)) {
+      for (const quad of dataset.match(null, predicate, null, graph)) {
         addShapeNode(quad.object);
+      }
+    }
+
+    // Member of a SHACL list that is a value of a shape-expecting and list-taking parameter such as sh:or
+    for (const predicate of [sh.and, sh["in"], sh.languageIn, sh.or, sh.xone]) {
+      for (const quad of dataset.match(null, predicate, null, graph)) {
+        switch (quad.object.termType) {
+          case "BlankNode":
+          case "NamedNode":
+            break;
+          default:
+            continue;
+        }
+
+        for (const value of getRdfList({
+          dataset,
+          graph,
+          node: quad.object,
+        })) {
+          switch (value.termType) {
+            case "BlankNode":
+            case "NamedNode":
+              addShapeNode(value);
+              break;
+            // Ignore literals
+          }
+        }
       }
     }
 
@@ -240,5 +269,13 @@ export class ShapesGraph {
       propertyShapes,
       propertyShapesByNode,
     };
+  }
+
+  shapeByNode(node: BlankNode | NamedNode): Maybe<Shape> {
+    const nodeShape = this.nodeShapeByNode(node);
+    if (nodeShape.isJust()) {
+      return nodeShape;
+    }
+    return this.propertyShapeByNode(node);
   }
 }
