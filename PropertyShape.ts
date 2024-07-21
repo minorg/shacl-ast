@@ -1,11 +1,12 @@
 import { Shape } from "./Shape.js";
 import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
-import { dash, sh, xsd } from "@tpluscode/rdf-ns-builders";
+import { dash, sh } from "@tpluscode/rdf-ns-builders";
 import { PropertyGroup } from "./PropertyGroup.js";
 import { NodeShape } from "./NodeShape.js";
 import { getRdfList } from "./getRdfList.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
 import { Maybe } from "purify-ts";
+import { mapTermToBoolean } from "./mapTermToBoolean.js";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
@@ -136,23 +137,7 @@ export class PropertyShape extends Shape {
   }
 
   get singleLine(): Maybe<boolean> {
-    return this.findAndMapObject(dash.singleLine, (term) => {
-      if (term.termType !== "Literal") {
-        return Maybe.empty();
-      } else if (!term.datatype.equals(xsd.boolean)) {
-        return Maybe.empty();
-      }
-      switch (term.value.toLowerCase()) {
-        case "1":
-        case "true":
-          return Maybe.of(true);
-        case "0":
-        case "false":
-          return Maybe.of(false);
-        default:
-          return Maybe.empty();
-      }
-    });
+    return this.findAndMapObject(dash.singleLine, mapTermToBoolean);
   }
 
   get viewer(): Maybe<NamedNode> {
