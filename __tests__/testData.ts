@@ -20,6 +20,5 @@ function parseTurtleFile(fileName: string): DatasetCore {
 }
 
 export const testData = {
-  dataGraph: parseTurtleFile("testDataGraph.ttl"),
   shapesGraph: parseTurtleFile("testShapesGraph.ttl"),
 };
