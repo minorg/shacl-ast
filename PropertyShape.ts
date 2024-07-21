@@ -6,6 +6,7 @@ import { mapTermToNumber } from "./mapTermToNumber.js";
 import { Maybe } from "purify-ts";
 import { mapTermToBoolean } from "./mapTermToBoolean.js";
 import { Resource } from "./Resource.js";
+import { PropertyPath } from "./PropertyPath.js";
 
 export class PropertyShape extends Shape {
   readonly constraints: PropertyShape.Constraints;
@@ -33,7 +34,7 @@ export class PropertyShape extends Shape {
     return this.findAndMapObject(sh.maxCount, mapTermToNumber);
   }
 
-  get path(): BlankNode | NamedNode {
+  get path(): PropertyPath {
     for (const quad of this.dataset.match(
       this.node,
       sh.path,
@@ -43,7 +44,14 @@ export class PropertyShape extends Shape {
       switch (quad.object.termType) {
         case "BlankNode":
         case "NamedNode":
-          return quad.object;
+          const path = PropertyPath.fromNode({
+            dataset: this.dataset,
+            node: quad.object,
+          });
+          if (path.isLeft()) {
+            throw path.extract() as Error;
+          }
+          return path.extract() as PropertyPath;
         default:
           throw new Error(
             `non-BlankNode/NamedNode sh:path found on property shape ${this.node.value}: ${quad.object.termType} ${quad.object.value}`,
@@ -58,7 +66,7 @@ export class PropertyShape extends Shape {
   }
 
   override toString(): string {
-    return `PropertyShape(node=${this.node.value}, path=${this.path.value})`;
+    return `PropertyShape(node=${this.node.value})`;
   }
 
   get viewer(): Maybe<NamedNode> {
