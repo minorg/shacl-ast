@@ -1,8 +1,7 @@
 import { Resource } from "./Resource.js";
-import { rdf, rdfs, sh } from "@tpluscode/rdf-ns-builders";
+import { sh } from "@tpluscode/rdf-ns-builders";
 import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "./NodeKind.js";
-import { isRdfSubClassOf } from "./isRdfSubClassOf.js";
 import { Maybe } from "purify-ts";
 import { getRdfList } from "./getRdfList.js";
 import { NodeShape } from "./NodeShape.js";
