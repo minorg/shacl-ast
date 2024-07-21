@@ -186,23 +186,6 @@ export namespace Shape {
   }
 
   export class Targets extends Resource {
-    /**
-     * The rdf:Class's this shape is or is a subClassOf.
-     */
-    get implicitClassTargets(): readonly NamedNode[] {
-      return this.filterAndMapObjects(rdf.type, (term) =>
-        term.termType === "NamedNode" &&
-        isRdfSubClassOf({
-          dataset: this.dataset,
-          graph: this.shapesGraph.graphNode,
-          subClass: term,
-          superClass: rdfs.Class,
-        })
-          ? Maybe.of(term)
-          : Maybe.empty(),
-      );
-    }
-
     get targetClasses(): readonly NamedNode[] {
       return this.filterAndMapObjects(sh.targetClass, (term) =>
         term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
