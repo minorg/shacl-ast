@@ -1,5 +1,6 @@
 import { BlankNode, NamedNode, Term } from "@rdfjs/types";
 import { ShapesGraph } from "./ShapesGraph.js";
+import { Maybe } from "purify-ts";
 
 export abstract class ShaclModel {
   readonly node: BlankNode | NamedNode;
@@ -22,7 +23,7 @@ export abstract class ShaclModel {
 
   protected filterAndMapObjects<T>(
     property: NamedNode,
-    callback: (value: Term) => NonNullable<T> | null,
+    callback: (value: Term) => Maybe<NonNullable<T>>,
   ): readonly NonNullable<T>[] {
     const mappedObjects: NonNullable<T>[] = [];
     for (const quad of this.dataset.match(
@@ -31,9 +32,9 @@ export abstract class ShaclModel {
       null,
       this.shapesGraph.graphNode,
     )) {
-      const mappedObject: T | null = callback(quad.object);
-      if (mappedObject !== null) {
-        mappedObjects.push(mappedObject as NonNullable<T>);
+      const mappedObject: Maybe<NonNullable<T>> = callback(quad.object);
+      if (mappedObject.isJust()) {
+        mappedObjects.push(mappedObject.extract());
       }
     }
     return mappedObjects;
@@ -41,19 +42,19 @@ export abstract class ShaclModel {
 
   protected findAndMapObject<T>(
     property: NamedNode,
-    callback: (value: Term) => NonNullable<T> | null,
-  ): NonNullable<T> | null {
+    callback: (value: Term) => Maybe<NonNullable<T>>,
+  ): Maybe<NonNullable<T>> {
     for (const quad of this.dataset.match(
       this.node,
       property,
       null,
       this.shapesGraph.graphNode,
     )) {
-      const mappedObject: T | null = callback(quad.object);
-      if (mappedObject !== null) {
-        return mappedObject as NonNullable<T>;
+      const mappedObject: Maybe<NonNullable<T>> = callback(quad.object);
+      if (mappedObject.isJust()) {
+        return mappedObject;
       }
     }
-    return null;
+    return Maybe.empty();
   }
 }

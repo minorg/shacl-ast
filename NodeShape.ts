@@ -2,6 +2,7 @@ import { Shape } from "./Shape.js";
 import { PropertyShape } from "./PropertyShape.js";
 import { BlankNode, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 
 export class NodeShape extends Shape {
   get properties(): readonly PropertyShape[] {
@@ -9,11 +10,13 @@ export class NodeShape extends Shape {
       switch (propertyObject.termType) {
         case "BlankNode":
         case "NamedNode":
-          return this.shapesGraph.propertyShapeByNode(
-            propertyObject as BlankNode | NamedNode,
+          return Maybe.of(
+            this.shapesGraph.propertyShapeByNode(
+              propertyObject as BlankNode | NamedNode,
+            ),
           );
         default:
-          return null;
+          return Maybe.empty();
       }
     });
   }

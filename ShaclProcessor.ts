@@ -84,10 +84,7 @@ export class ShaclProcessor {
     rdfType: NamedNode,
   ): boolean {
     const nodeShapeTargetsRdfType = (nodeShape: NodeShape): boolean => {
-      if (
-        nodeShape.nodeKind !== null &&
-        nodeShape.nodeKind === NodeKind.LITERAL
-      ) {
+      if (nodeShape.nodeKind.extractNullable() === NodeKind.LITERAL) {
         return false;
       }
 

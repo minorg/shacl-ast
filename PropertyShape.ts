@@ -4,70 +4,76 @@ import { dash, sh, xsd } from "@tpluscode/rdf-ns-builders";
 import { PropertyGroup } from "./PropertyGroup.js";
 import { NodeShape } from "./NodeShape.js";
 import { getRdfList } from "./getRdfList.js";
-import { requireNonNull } from "./requireNonNull.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
+import { Maybe } from "purify-ts";
 
 type PropertyShapeValue = BlankNode | Literal | NamedNode;
 
 export class PropertyShape extends Shape {
   get classes(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.class, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
-  get datatype(): NamedNode | null {
+  get datatype(): Maybe<NamedNode> {
     return this.findAndMapObject(sh.datatype, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
-  get defaultValue(): PropertyShapeValue | null {
+  get defaultValue(): Maybe<PropertyShapeValue> {
     return this.findAndMapObject(sh.defaultValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
+      hasPropertyShapeValueTermType(term)
+        ? Maybe.of(term as PropertyShapeValue)
+        : Maybe.empty(),
     );
   }
 
-  get editor(): NamedNode | null {
+  get editor(): Maybe<NamedNode> {
     return this.findAndMapObject(dash.editor, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
-  get group(): PropertyGroup | null {
+  get group(): Maybe<PropertyGroup> {
     return this.findAndMapObject(sh.group, (term) =>
       term.termType === "NamedNode"
-        ? this.shapesGraph.propertyGroupByNode(term)
-        : null,
+        ? Maybe.of(this.shapesGraph.propertyGroupByNode(term))
+        : Maybe.empty(),
     );
   }
 
-  get hasValue(): PropertyShapeValue | null {
+  get hasValue(): Maybe<PropertyShapeValue> {
     return this.findAndMapObject(sh.hasValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
+      hasPropertyShapeValueTermType(term)
+        ? Maybe.of(term as PropertyShapeValue)
+        : Maybe.empty(),
     );
   }
 
-  get in_(): readonly PropertyShapeValue[] | null {
+  get in_(): Maybe<readonly PropertyShapeValue[]> {
     return this.findAndMapObject(sh.in, (term) => {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
-          return [...getRdfList({
-            dataset: this.dataset,
-            node: term,
-          })];
+          return Maybe.of([
+            ...getRdfList({
+              dataset: this.dataset,
+              node: term,
+            }),
+          ]);
         default:
-          return null;
+          return Maybe.empty();
       }
     });
   }
 
-  get maxCount(): number | null {
+  get maxCount(): Maybe<number> {
     return this.findAndMapObject(sh.maxCount, mapTermToNumber);
   }
 
-  get minCount(): number | null {
+  get minCount(): Maybe<number> {
     return this.findAndMapObject(sh.minCount, mapTermToNumber);
   }
 
@@ -76,9 +82,9 @@ export class PropertyShape extends Shape {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
-          return this.shapesGraph.nodeShapeByNode(term);
+          return Maybe.of(this.shapesGraph.nodeShapeByNode(term));
         default:
-          return null;
+          return Maybe.empty();
       }
     });
   }
@@ -117,41 +123,39 @@ export class PropertyShape extends Shape {
     return propertyShapes;
   }
 
-  get order(): number | null {
+  get order(): Maybe<number> {
     return this.findAndMapObject(sh.maxCount, mapTermToNumber);
   }
 
   get path(): NamedNode {
-    return requireNonNull(
-      this.findAndMapObject(sh.path, (term) =>
-        term.termType === "NamedNode" ? (term as NamedNode) : null,
-      ),
-    );
+    return this.findAndMapObject(sh.path, (term) =>
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
+    ).unsafeCoerce();
   }
 
-  get singleLine(): boolean | null {
+  get singleLine(): Maybe<boolean> {
     return this.findAndMapObject(dash.singleLine, (term) => {
       if (term.termType !== "Literal") {
-        return null;
+        return Maybe.empty();
       } else if (!term.datatype.equals(xsd.boolean)) {
-        return null;
+        return Maybe.empty();
       }
       switch (term.value.toLowerCase()) {
         case "1":
         case "true":
-          return true;
+          return Maybe.of(true);
         case "0":
         case "false":
-          return false;
+          return Maybe.of(false);
         default:
-          return null;
+          return Maybe.empty();
       }
     });
   }
 
-  get viewer(): NamedNode | null {
+  get viewer(): Maybe<NamedNode> {
     return this.findAndMapObject(dash.viewer, (term) =>
-      term.termType === "NamedNode" ? (term as NamedNode) : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 }

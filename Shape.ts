@@ -3,11 +3,12 @@ import { rdf, rdfs, sh } from "@tpluscode/rdf-ns-builders";
 import { Literal, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "./NodeKind.js";
 import { isRdfSubClassOf } from "./isRdfSubClassOf.js";
+import { Maybe } from "purify-ts";
 
 export class Shape extends ShaclModel {
-  get description(): Literal | null {
+  get description(): Maybe<Literal> {
     return this.findAndMapObject(sh.description, (term) =>
-      term.termType === "Literal" ? (term as Literal) : null,
+      term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
@@ -23,63 +24,63 @@ export class Shape extends ShaclModel {
         subClass: term,
         superClass: rdfs.Class,
       })
-        ? term
-        : null,
+        ? Maybe.of(term)
+        : Maybe.empty(),
     );
   }
 
-  get name(): Literal | null {
+  get name(): Maybe<Literal> {
     return this.findAndMapObject(sh.name, (term) =>
-      term.termType === "Literal" ? (term as Literal) : null,
+      term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
-  get nodeKind(): NodeKind | null {
+  get nodeKind(): Maybe<NodeKind> {
     return this.findAndMapObject(sh.nodeKind, (term) => {
       if (term.termType !== "NamedNode") {
-        return null;
+        return Maybe.empty();
       }
       if (term.equals(sh.BlankNode)) {
-        return NodeKind.BLANK_NODE;
+        return Maybe.of(NodeKind.BLANK_NODE);
       } else if (term.equals(sh.BlankNodeOrIRI)) {
-        return NodeKind.BLANK_NODE_OR_IRI;
+        return Maybe.of(NodeKind.BLANK_NODE_OR_IRI);
       } else if (term.equals(sh.BlankNodeOrLiteral)) {
-        return NodeKind.BLANK_NODE_OR_LITERAL;
+        return Maybe.of(NodeKind.BLANK_NODE_OR_LITERAL);
       } else if (term.equals(sh.IRI)) {
-        return NodeKind.IRI;
+        return Maybe.of(NodeKind.IRI);
       } else if (term.equals(sh.IRIOrLiteral)) {
-        return NodeKind.IRI_OR_LITERAL;
+        return Maybe.of(NodeKind.IRI_OR_LITERAL);
       } else if (term.equals(sh.Literal)) {
-        return NodeKind.LITERAL;
+        return Maybe.of(NodeKind.LITERAL);
       } else {
-        return null;
+        return Maybe.empty();
       }
     });
   }
 
   get targetClasses(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetClass, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
   get targetNodes(): readonly (Literal | NamedNode)[] {
     return this.filterAndMapObjects(sh.targetNode, (term) =>
       term.termType === "Literal" || term.termType === "NamedNode"
-        ? term
-        : null,
+        ? Maybe.of(term)
+        : Maybe.empty(),
     );
   }
 
   get targetObjectsOf(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetObjectsOf, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
   get targetSubjectsOf(): readonly NamedNode[] {
     return this.filterAndMapObjects(sh.targetSubjectsOf, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 }
