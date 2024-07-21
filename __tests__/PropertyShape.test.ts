@@ -1,5 +1,4 @@
-import { NodeShape, PropertyShape, ShapesGraph } from "..";
-import { DataFactory } from "n3";
+import { PropertyShape, ShapesGraph } from "..";
 import { beforeAll, describe, expect, it } from "vitest";
 import { testData } from "./testData";
 import { schema, xsd } from "@tpluscode/rdf-ns-builders";
