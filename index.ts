@@ -1,5 +1,3 @@
-export * from "./DataGraph.js";
-export * from "./FocusNode.js";
 export * from "./NodeKind.js";
 export * from "./NodeShape.js";
 export * from "./PropertyGroup.js";
