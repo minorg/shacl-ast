@@ -39,7 +39,7 @@ export class PropertyShape extends Shape {
   get group(): Maybe<PropertyGroup> {
     return this.findAndMapObject(sh.group, (term) =>
       term.termType === "NamedNode"
-        ? Maybe.of(this.shapesGraph.propertyGroupByNode(term))
+        ? this.shapesGraph.propertyGroupByNode(term)
         : Maybe.empty(),
     );
   }
@@ -82,7 +82,7 @@ export class PropertyShape extends Shape {
       switch (term.termType) {
         case "BlankNode":
         case "NamedNode":
-          return Maybe.of(this.shapesGraph.nodeShapeByNode(term));
+          return this.shapesGraph.nodeShapeByNode(term);
         default:
           return Maybe.empty();
       }
@@ -114,7 +114,9 @@ export class PropertyShape extends Shape {
           case "BlankNode":
           case "NamedNode":
             propertyShapes.push(
-              this.shapesGraph.propertyShapeByNode(propertyShapeNode),
+              ...this.shapesGraph
+                .propertyShapeByNode(propertyShapeNode)
+                .toList(),
             );
             break;
         }

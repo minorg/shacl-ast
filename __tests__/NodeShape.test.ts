@@ -3,7 +3,7 @@ import { DataFactory } from "n3";
 import { beforeAll, describe, it } from "vitest";
 import { testData } from "./testData";
 
-describe("Shapes", () => {
+describe("NodeShape", () => {
   let shapes: ShapesGraph;
 
   beforeAll(() => {

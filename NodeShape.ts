@@ -10,10 +10,8 @@ export class NodeShape extends Shape {
       switch (propertyObject.termType) {
         case "BlankNode":
         case "NamedNode":
-          return Maybe.of(
-            this.shapesGraph.propertyShapeByNode(
-              propertyObject as BlankNode | NamedNode,
-            ),
+          return this.shapesGraph.propertyShapeByNode(
+            propertyObject as BlankNode | NamedNode,
           );
         default:
           return Maybe.empty();

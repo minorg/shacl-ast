@@ -11,14 +11,18 @@ import { PropertyShape } from "./PropertyShape.js";
 import { PropertyGroup } from "./PropertyGroup.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
+import { Maybe } from "purify-ts";
 
 export class ShapesGraph {
-  // @ts-ignore
-  private readonly nodeShapesByNode: TermMap;
-  // @ts-ignore
-  private readonly propertyGroupsByNode: TermMap;
-  // @ts-ignore
-  private readonly propertyShapesByNode: TermMap;
+  private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
+  private readonly propertyGroupsByNode: TermMap<
+    BlankNode | NamedNode,
+    PropertyGroup
+  >;
+  private readonly propertyShapesByNode: TermMap<
+    BlankNode | NamedNode,
+    PropertyShape
+  >;
 
   readonly graphNode: BlankNode | DefaultGraph | NamedNode;
   readonly nodeShapes: readonly NodeShape[];
@@ -49,16 +53,18 @@ export class ShapesGraph {
     return new ShapesGraph(dataset);
   }
 
-  nodeShapeByNode(nodeShapeNode: BlankNode | NamedNode): NodeShape {
-    return this.nodeShapesByNode.get(nodeShapeNode);
+  nodeShapeByNode(nodeShapeNode: BlankNode | NamedNode): Maybe<NodeShape> {
+    return Maybe.fromNullable(this.nodeShapesByNode.get(nodeShapeNode));
   }
 
-  propertyGroupByNode(propertyGroupNode: NamedNode): PropertyGroup {
-    return this.propertyGroupsByNode.get(propertyGroupNode);
+  propertyGroupByNode(propertyGroupNode: NamedNode): Maybe<PropertyGroup> {
+    return Maybe.fromNullable(this.propertyGroupsByNode.get(propertyGroupNode));
   }
 
-  propertyShapeByNode(propertyShapeNode: BlankNode | NamedNode): PropertyShape {
-    return this.propertyShapesByNode.get(propertyShapeNode);
+  propertyShapeByNode(
+    propertyShapeNode: BlankNode | NamedNode,
+  ): Maybe<PropertyShape> {
+    return Maybe.fromNullable(this.propertyShapesByNode.get(propertyShapeNode));
   }
 
   private static readGraph(
@@ -90,10 +96,11 @@ export class ShapesGraph {
     shapesGraph: ShapesGraph,
   ): {
     propertyGroups: PropertyGroup[];
-    propertyGroupsByNode: TermMap;
+    propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup>;
   } {
     const propertyGroups: PropertyGroup[] = [];
-    const propertyGroupsByNode: TermMap = new TermMap();
+    const propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup> =
+      new TermMap();
     for (const quad of dataset.match(null, rdf.type, sh.PropertyGroup, graph)) {
       const subject = quad.subject;
       if (subject.termType !== "NamedNode") {
@@ -114,9 +121,9 @@ export class ShapesGraph {
     shapesGraph: ShapesGraph,
   ): {
     nodeShapes: NodeShape[];
-    nodeShapesByNode: TermMap;
+    nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
     propertyShapes: PropertyShape[];
-    propertyShapesByNode: TermMap;
+    propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape>;
   } {
     // Collect the shape identifiers in sets
     const shapeNodeSet = new TermSet<BlankNode | NamedNode>();
@@ -204,9 +211,11 @@ export class ShapesGraph {
 
     // Separate shapes into node and property shapes.
     const nodeShapes: NodeShape[] = [];
-    const nodeShapesByNode: TermMap = new TermMap();
+    const nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape> =
+      new TermMap();
     const propertyShapes: PropertyShape[] = [];
-    const propertyShapesByNode: TermMap = new TermMap();
+    const propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShape> =
+      new TermMap();
 
     for (const shapeNode of shapeNodeSet) {
       if (dataset.match(shapeNode, sh.path, null, graph).size > 0) {

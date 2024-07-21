@@ -63,9 +63,9 @@ describe("ShaclProcessor", () => {
   });
 
   it("should get the focus nodes for a shape", ({ expect }) => {
-    const nodeShape = shapesGraph.nodeShapeByNode(
-      DataFactory.namedNode("http://schema.org/PersonShape"),
-    );
+    const nodeShape = shapesGraph
+      .nodeShapeByNode(DataFactory.namedNode("http://schema.org/PersonShape"))
+      .unsafeCoerce();
     const focusNodes: FocusNode[] = [];
     new ShaclProcessor({
       dataGraph: testData.dataGraph,
