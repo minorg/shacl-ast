@@ -57,6 +57,10 @@ export class PropertyShape extends Shape {
     return this.findAndMapObject(dash.singleLine, mapTermToBoolean);
   }
 
+  override toString(): string {
+    return `PropertyShape(node=${this.node.value}, path=${this.path.value})`;
+  }
+
   get viewer(): Maybe<NamedNode> {
     return this.findAndMapObject(dash.viewer, (term) =>
       term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),

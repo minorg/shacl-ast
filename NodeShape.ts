@@ -13,6 +13,10 @@ export class NodeShape extends Shape {
     super(parameters);
     this.constraints = new NodeShape.Constraints(parameters);
   }
+
+  override toString(): string {
+    return `NodeShape(node=${this.node.value})`;
+  }
 }
 
 export namespace NodeShape {
