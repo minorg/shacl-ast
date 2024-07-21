@@ -33,10 +33,24 @@ export class PropertyShape extends Shape {
     return this.findAndMapObject(sh.maxCount, mapTermToNumber);
   }
 
-  get path(): NamedNode {
-    return this.findAndMapObject(sh.path, (term) =>
-      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-    ).unsafeCoerce();
+  get path(): BlankNode | NamedNode {
+    for (const quad of this.dataset.match(
+      this.node,
+      sh.path,
+      null,
+      this.shapesGraph.graphNode,
+    )) {
+      switch (quad.object.termType) {
+        case "BlankNode":
+        case "NamedNode":
+          return quad.object;
+        default:
+          throw new Error(
+            `non-BlankNode/NamedNode sh:path found on property shape ${this.node.value}: ${quad.object.termType} ${quad.object.value}`,
+          );
+      }
+    }
+    throw new Error(`no sh:path found on property shape ${this.node.value}`);
   }
 
   get singleLine(): Maybe<boolean> {
