@@ -1,8 +1,8 @@
 import { Resource } from "./Resource.js";
 import { sh } from "@tpluscode/rdf-ns-builders";
-import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
 import { NodeKind } from "./NodeKind.js";
-import { Maybe } from "purify-ts";
+import { Either, Left, Maybe } from "purify-ts";
 import { getRdfList } from "./getRdfList.js";
 import { NodeShape } from "./NodeShape.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
@@ -29,8 +29,22 @@ export abstract class Shape extends Resource {
   }
 }
 
+function toShapeNode(term: Term): Maybe<BlankNode | NamedNode> {
+  switch (term.termType) {
+    case "BlankNode":
+    case "NamedNode":
+      return Maybe.of(term);
+    default:
+      return Maybe.empty();
+  }
+}
+
 export namespace Shape {
   export class Constraints extends Resource {
+    get and(): readonly Shape[] {
+      return this.listTakingLogicalConstraint(sh.and);
+    }
+
     get classes(): readonly NamedNode[] {
       return this.filterAndMapObjects(sh.class, (term) =>
         term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
@@ -140,47 +154,83 @@ export namespace Shape {
     }
 
     get nodes(): readonly NodeShape[] {
-      return this.filterAndMapObjects(sh.node, (term) => {
-        switch (term.termType) {
-          case "BlankNode":
-          case "NamedNode":
-            return this.shapesGraph.nodeShapeByNode(term);
-          default:
-            return Maybe.empty();
-        }
-      });
+      return this.filterAndMapObjects(sh.node, (term) =>
+        toShapeNode(term).chain((shapeNode) =>
+          this.shapesGraph.nodeShapeByNode(shapeNode),
+        ),
+      );
     }
 
-    get or(): readonly Shape[] {
+    get not(): readonly Shape[] {
       const shapes: Shape[] = [];
-      for (const orQuad of this.dataset.match(
+      for (const quad of this.dataset.match(
         this.node,
-        sh.or,
+        sh.not,
         null,
         this.shapesGraph.graphNode,
       )) {
-        switch (orQuad.object.termType) {
-          case "BlankNode":
-          case "NamedNode":
-            break;
-          default:
-            continue;
-        }
-
-        for (const shapeNode of getRdfList({
-          dataset: this.dataset,
-          graph: this.shapesGraph.graphNode,
-          node: orQuad.object,
-        })) {
-          switch (shapeNode.termType) {
-            case "BlankNode":
-            case "NamedNode":
-              shapes.push(...this.shapesGraph.shapeByNode(shapeNode).toList());
-              break;
-          }
-        }
+        toShapeNode(quad.object).ifJust((shapeNode) =>
+          shapes.push(...this.shapesGraph.shapeByNode(shapeNode).toList()),
+        );
       }
       return shapes;
+    }
+
+    get or(): readonly Shape[] {
+      return this.listTakingLogicalConstraint(sh.or);
+    }
+
+    get xone(): readonly Shape[] {
+      return this.listTakingLogicalConstraint(sh.xone);
+    }
+
+    private list(
+      listNode: Term,
+    ): Either<Error, readonly (BlankNode | NamedNode | Literal)[]> {
+      switch (listNode.termType) {
+        case "BlankNode":
+        case "NamedNode":
+          break;
+        default:
+          return Left(
+            new Error(`${listNode.termType} ${listNode.value} is not a node`),
+          );
+      }
+
+      return Either.encase(() => [
+        ...getRdfList({
+          dataset: this.dataset,
+          graph: this.shapesGraph.graphNode,
+          node: listNode,
+        }),
+      ]);
+    }
+
+    private listTakingLogicalConstraint(predicate: NamedNode) {
+      const shapes: Shape[] = [];
+      for (const quad of this.dataset.match(
+        this.node,
+        predicate,
+        null,
+        this.shapesGraph.graphNode,
+      )) {
+        shapes.push(...this.shapeList(quad.object).orDefault([]));
+      }
+      return shapes;
+    }
+
+    private shapeList(shapeListNode: Term): Either<Error, readonly Shape[]> {
+      return this.list(shapeListNode).map((terms) =>
+        terms
+          .flatMap((term) =>
+            toShapeNode(term)
+              .map((shapeNode) =>
+                this.shapesGraph.shapeByNode(shapeNode).toList(),
+              )
+              .toList(),
+          )
+          .flat(),
+      );
     }
   }
 

@@ -1,4 +1,4 @@
-import { BlankNode, DatasetCore, NamedNode } from "@rdfjs/types";
+import { BlankNode, DatasetCore, NamedNode, Term } from "@rdfjs/types";
 import { rdf, sh } from "@tpluscode/rdf-ns-builders";
 import { Either, Left } from "purify-ts";
 import { getRdfList } from "./getRdfList.js";
@@ -64,55 +64,55 @@ export namespace PropertyPath {
 
     // The other property path types are BlankNodes
 
+    const getPropertyPathList = (
+      listNode: BlankNode | NamedNode,
+    ): Either<Error, readonly PropertyPath[]> => {
+      return Either.encase(() => [
+        ...getRdfList({ dataset, node: listNode }),
+      ]).chain((terms) => {
+        const members: PropertyPath[] = [];
+        for (const term of terms) {
+          const memberNode = toPropertyPathNode(term);
+          if (memberNode == null) {
+            return Left(
+              new Error(
+                `property path list has non-BlankNode/NamedNode member: ${term.termType} ${term.value}`,
+              ),
+            );
+          }
+          const member = PropertyPath.fromNode({
+            dataset,
+            node: memberNode,
+          });
+          if (member.isLeft()) {
+            return member;
+          }
+          members.push(member.extract() as PropertyPath);
+        }
+        return Either.of(members) satisfies Either<
+          Error,
+          readonly PropertyPath[]
+        >;
+      });
+    };
+
     for (const quad of dataset.match(node, null, null, null)) {
-      const quadObject = quad.object;
-      switch (quadObject.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          break;
-        default:
-          return Left(
-            new Error(
-              `non-BlankNode/NamedNode property path object on path ${node.value}: ${quadObject.termType} ${quadObject.value}`,
-            ),
-          );
+      const quadObject = toPropertyPathNode(quad.object);
+      if (quadObject === null) {
+        return Left(
+          new Error(
+            `non-BlankNode/NamedNode property path object on path ${node.value}: ${quad.object.termType} ${quad.object.value}`,
+          ),
+        );
       }
 
       // Alternative path
       // sh:path: [ sh:alternativePath ( ex:father ex:mother  ) ]
       if (quad.predicate.equals(sh.alternativePath)) {
-        return Either.encase(() => [
-          ...getRdfList({ dataset, node: quadObject }),
-        ])
-          .chain((terms) => {
-            const members: PropertyPath[] = [];
-            for (const term of terms) {
-              switch (term.termType) {
-                case "BlankNode":
-                case "NamedNode":
-                  break;
-                default:
-                  return Left(
-                    new Error(
-                      `alternative property path ${node.value} has non-BlankNode/NamedNode member: ${term.termType} ${term.value}`,
-                    ),
-                  );
-              }
-              const path = PropertyPath.fromNode({ dataset, node });
-              if (path.isLeft()) {
-                return path;
-              }
-              members.push(path.extract() as PropertyPath);
-            }
-            return Either.of(members) satisfies Either<
-              Error,
-              readonly PropertyPath[]
-            >;
-          })
-          .map((members) => ({
-            kind: "AlternativePath",
-            members,
-          }));
+        return getPropertyPathList(quadObject).map((members) => ({
+          kind: "AlternativePath",
+          members,
+        }));
       }
 
       // Inverse path
@@ -133,41 +133,10 @@ export namespace PropertyPath {
       // Sequence path
       // sh:path ( ex:parent ex:firstName )
       if (quad.predicate.equals(rdf.first)) {
-        return Either.encase(() => [
-          ...getRdfList({
-            dataset,
-            node,
-          }),
-        ])
-          .chain((terms) => {
-            const members: PropertyPath[] = [];
-            for (const term of terms) {
-              switch (term.termType) {
-                case "BlankNode":
-                case "NamedNode":
-                  break;
-                default:
-                  return Left(
-                    new Error(
-                      `sequence property path ${node.value}: has non-BlankNode/NamedNode member: ${term.termType} ${term.value}`,
-                    ),
-                  );
-              }
-              const path = PropertyPath.fromNode({ dataset, node });
-              if (path.isLeft()) {
-                return path;
-              }
-              members.push(path.extract() as PropertyPath);
-            }
-            return Either.of(members) satisfies Either<
-              Error,
-              readonly PropertyPath[]
-            >;
-          })
-          .map((members) => ({
-            kind: "SequencePath",
-            members,
-          }));
+        return getPropertyPathList(node).map((members) => ({
+          kind: "SequencePath",
+          members,
+        }));
       }
 
       // Zero or more path
@@ -187,5 +156,15 @@ export namespace PropertyPath {
     return Left(
       new Error(`unrecognized or ill-formed SHACL property path ${node.value}`),
     );
+  }
+
+  function toPropertyPathNode(term: Term): BlankNode | NamedNode | null {
+    switch (term.termType) {
+      case "BlankNode":
+      case "NamedNode":
+        return term;
+      default:
+        return null;
+    }
   }
 }

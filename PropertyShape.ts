@@ -66,7 +66,12 @@ export class PropertyShape extends Shape {
   }
 
   override toString(): string {
-    return `PropertyShape(node=${this.node.value})`;
+    const keyValues: string[] = [`node=${this.node.value}`];
+    const path = this.path;
+    if (path.kind === "PredicatePath") {
+      keyValues.push(`path=${path.iri.value}`);
+    }
+    return `PropertyShape(${keyValues.join(", ")})`;
   }
 
   get viewer(): Maybe<NamedNode> {
