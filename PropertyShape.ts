@@ -39,7 +39,7 @@ export class PropertyShape extends Shape {
       this.node,
       sh.path,
       null,
-      this.shapesGraph.graphNode,
+      this.shapesGraph.node,
     )) {
       switch (quad.object.termType) {
         case "BlankNode":

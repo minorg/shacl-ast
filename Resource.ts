@@ -24,7 +24,7 @@ export abstract class Resource {
       this.node,
       property,
       null,
-      this.shapesGraph.graphNode,
+      this.shapesGraph.node,
     )) {
       const mappedObject: Maybe<NonNullable<T>> = callback(quad.object);
       if (mappedObject.isJust()) {
@@ -42,7 +42,7 @@ export abstract class Resource {
       this.node,
       property,
       null,
-      this.shapesGraph.graphNode,
+      this.shapesGraph.node,
     )) {
       const mappedObject: Maybe<NonNullable<T>> = callback(quad.object);
       if (mappedObject.isJust()) {

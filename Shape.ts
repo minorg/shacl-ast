@@ -79,6 +79,7 @@ export namespace Shape {
               [
                 ...getRdfList({
                   dataset: this.dataset,
+                  graph: this.shapesGraph.node,
                   node: term,
                 }),
               ].filter((term) => {
@@ -167,7 +168,7 @@ export namespace Shape {
         this.node,
         sh.not,
         null,
-        this.shapesGraph.graphNode,
+        this.shapesGraph.node,
       )) {
         toShapeNode(quad.object).ifJust((shapeNode) =>
           shapes.push(...this.shapesGraph.shapeByNode(shapeNode).toList()),
@@ -200,7 +201,7 @@ export namespace Shape {
       return Either.encase(() => [
         ...getRdfList({
           dataset: this.dataset,
-          graph: this.shapesGraph.graphNode,
+          graph: this.shapesGraph.node,
           node: listNode,
         }),
       ]);
@@ -212,7 +213,7 @@ export namespace Shape {
         this.node,
         predicate,
         null,
-        this.shapesGraph.graphNode,
+        this.shapesGraph.node,
       )) {
         shapes.push(...this.shapeList(quad.object).orDefault([]));
       }

@@ -1,4 +1,10 @@
-import { DatasetCore, NamedNode, Quad } from "@rdfjs/types";
+import {
+  DatasetCore,
+  NamedNode,
+  Quad,
+  Quad_Graph,
+  Variable,
+} from "@rdfjs/types";
 import TermSet from "@rdfjs/term-set";
 import { rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 
@@ -6,6 +12,7 @@ export interface GetRdfInstanceQuadsParameters {
   class_: NamedNode;
   dataset: DatasetCore;
   excludeSubclasses?: boolean;
+  graph?: Exclude<Quad_Graph, Variable> | null;
   instanceOfPredicate?: NamedNode;
   subClassOfPredicate?: NamedNode;
 }
@@ -18,6 +25,7 @@ export interface GetRdfInstanceQuadsParameters {
 export function* getRdfInstanceQuads({
   class_,
   dataset,
+  graph,
   excludeSubclasses,
   instanceOfPredicate,
   subClassOfPredicate,
@@ -25,6 +33,7 @@ export function* getRdfInstanceQuads({
   yield* getRdfInstanceQuadsRecursive({
     class_,
     dataset,
+    graph: graph ?? null,
     excludeSubclasses: excludeSubclasses ?? false,
     instanceOfPredicate: instanceOfPredicate ?? rdf.type,
     instanceQuads: new TermSet<Quad>(),
@@ -37,6 +46,7 @@ function* getRdfInstanceQuadsRecursive({
   class_,
   dataset,
   excludeSubclasses,
+  graph,
   instanceOfPredicate,
   instanceQuads,
   subClassOfPredicate,
@@ -45,13 +55,14 @@ function* getRdfInstanceQuadsRecursive({
   class_: NamedNode;
   dataset: DatasetCore;
   excludeSubclasses: boolean;
+  graph: Exclude<Quad_Graph, Variable> | null;
   instanceOfPredicate: NamedNode;
   instanceQuads: TermSet;
   subClassOfPredicate: NamedNode;
   visitedClasses: TermSet;
 }): Generator<Quad> {
   // Get instanceQuads of the class
-  for (const quad of dataset.match(null, instanceOfPredicate, class_)) {
+  for (const quad of dataset.match(null, instanceOfPredicate, class_, graph)) {
     switch (quad.subject.termType) {
       case "BlankNode":
       case "NamedNode":
@@ -72,7 +83,7 @@ function* getRdfInstanceQuadsRecursive({
   }
 
   // Recurse into class's sub-classes that haven't been visited yet.
-  for (const quad of dataset.match(null, subClassOfPredicate, class_, null)) {
+  for (const quad of dataset.match(null, subClassOfPredicate, class_, graph)) {
     if (quad.subject.termType !== "NamedNode") {
       continue;
     } else if (visitedClasses.has(quad.subject)) {
@@ -82,6 +93,7 @@ function* getRdfInstanceQuadsRecursive({
       class_: quad.subject,
       dataset,
       excludeSubclasses,
+      graph,
       instanceOfPredicate,
       instanceQuads,
       subClassOfPredicate,

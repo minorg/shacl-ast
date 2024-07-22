@@ -27,27 +27,26 @@ export class ShapesGraph {
     PropertyShape
   >;
 
-  readonly graphNode: BlankNode | DefaultGraph | NamedNode;
+  readonly node: BlankNode | DefaultGraph | NamedNode | null;
   readonly nodeShapes: readonly NodeShape[];
   readonly propertyGroups: readonly PropertyGroup[];
   readonly propertyShapes: readonly PropertyShape[];
 
   private constructor(readonly dataset: DatasetCore) {
-    this.graphNode = ShapesGraph.readGraph(dataset);
+    this.node = this.readGraph();
 
     const {
       nodeShapes,
       nodeShapesByNode,
       propertyShapes,
       propertyShapesByNode,
-    } = ShapesGraph.readShapes(dataset, this.graphNode, this);
+    } = this.readShapes();
     this.nodeShapes = nodeShapes;
     this.nodeShapesByNode = nodeShapesByNode;
     this.propertyShapes = propertyShapes;
     this.propertyShapesByNode = propertyShapesByNode;
 
-    const { propertyGroups, propertyGroupsByNode } =
-      ShapesGraph.readPropertyGroups(dataset, this.graphNode, this);
+    const { propertyGroups, propertyGroupsByNode } = this.readPropertyGroups();
     this.propertyGroups = propertyGroups;
     this.propertyGroupsByNode = propertyGroupsByNode;
   }
@@ -70,15 +69,13 @@ export class ShapesGraph {
     return Maybe.fromNullable(this.propertyShapesByNode.get(propertyShapeNode));
   }
 
-  private static readGraph(
-    dataset: DatasetCore,
-  ): BlankNode | DefaultGraph | NamedNode {
+  private readGraph(): BlankNode | DefaultGraph | NamedNode | null {
     const graphs = new TermSet();
-    for (const quad of dataset) {
+    for (const quad of this.dataset) {
       graphs.add(quad.graph);
     }
     if (graphs.size !== 1) {
-      throw new RangeError("expected a single graph");
+      return null;
     }
     const graph = [...graphs.values()][0];
     switch (graph.termType) {
@@ -93,36 +90,36 @@ export class ShapesGraph {
     }
   }
 
-  private static readPropertyGroups(
-    dataset: DatasetCore,
-    graph: BlankNode | DefaultGraph | NamedNode,
-    shapesGraph: ShapesGraph,
-  ): {
+  private readPropertyGroups(): {
     propertyGroups: PropertyGroup[];
     propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup>;
   } {
     const propertyGroups: PropertyGroup[] = [];
     const propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup> =
       new TermMap();
-    for (const quad of dataset.match(null, rdf.type, sh.PropertyGroup, graph)) {
+    for (const quad of this.dataset.match(
+      null,
+      rdf.type,
+      sh.PropertyGroup,
+      this.node,
+    )) {
       const subject = quad.subject;
       if (subject.termType !== "NamedNode") {
         continue;
       } else if (propertyGroupsByNode.has(subject)) {
         continue;
       }
-      const propertyGroup = new PropertyGroup({ node: subject, shapesGraph });
+      const propertyGroup = new PropertyGroup({
+        node: subject,
+        shapesGraph: this,
+      });
       propertyGroups.push(propertyGroup);
       propertyGroupsByNode.set(subject, propertyGroup);
     }
     return { propertyGroups, propertyGroupsByNode };
   }
 
-  private static readShapes(
-    dataset: DatasetCore,
-    graph: BlankNode | DefaultGraph | NamedNode,
-    shapesGraph: ShapesGraph,
-  ): {
+  private readShapes(): {
     nodeShapes: readonly NodeShape[];
     nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
     propertyShapes: readonly PropertyShape[];
@@ -146,7 +143,11 @@ export class ShapesGraph {
 
     // Subject is a SHACL instance of sh:NodeShape or sh:PropertyShape
     for (const rdfType of [sh.NodeShape, sh.PropertyShape]) {
-      for (const rdfInstance of getRdfInstances({ class_: rdfType, dataset })) {
+      for (const rdfInstance of getRdfInstances({
+        class_: rdfType,
+        dataset: this.dataset,
+        graph: this.node,
+      })) {
         addShapeNode(rdfInstance);
       }
     }
@@ -158,7 +159,7 @@ export class ShapesGraph {
       sh.targetObjectsOf,
       sh.targetSubjectsOf,
     ]) {
-      for (const quad of dataset.match(null, predicate, null, graph)) {
+      for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         addShapeNode(quad.subject);
       }
     }
@@ -199,21 +200,21 @@ export class ShapesGraph {
       sh.hasValue,
       sh.in,
     ]) {
-      for (const quad of dataset.match(null, predicate, null, graph)) {
+      for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         addShapeNode(quad.subject);
       }
     }
 
     // Object of a shape-expecting, non-list-taking parameter such as sh:node
     for (const predicate of [sh.node, sh.property]) {
-      for (const quad of dataset.match(null, predicate, null, graph)) {
+      for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         addShapeNode(quad.object);
       }
     }
 
     // Member of a SHACL list that is a value of a shape-expecting and list-taking parameter such as sh:or
     for (const predicate of [sh.and, sh["in"], sh.languageIn, sh.or, sh.xone]) {
-      for (const quad of dataset.match(null, predicate, null, graph)) {
+      for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         switch (quad.object.termType) {
           case "BlankNode":
           case "NamedNode":
@@ -223,8 +224,8 @@ export class ShapesGraph {
         }
 
         for (const value of getRdfList({
-          dataset,
-          graph,
+          dataset: this.dataset,
+          graph: this.node,
           node: quad.object,
         })) {
           switch (value.termType) {
@@ -247,17 +248,17 @@ export class ShapesGraph {
       new TermMap();
 
     for (const shapeNode of shapeNodeSet) {
-      if (dataset.match(shapeNode, sh.path, null, graph).size > 0) {
+      if (this.dataset.match(shapeNode, sh.path, null, this.node).size > 0) {
         // A property shape is a shape in the shapes graph that is the subject of a triple that has sh:path as its predicate. A shape has at most one value for sh:path. Each value of sh:path in a shape must be a well-formed SHACL property path. It is recommended, but not required, for a property shape to be declared as a SHACL instance of sh:PropertyShape. SHACL instances of sh:PropertyShape have one value for the property sh:path.
         const propertyShape = new PropertyShape({
           node: shapeNode,
-          shapesGraph,
+          shapesGraph: this,
         });
         propertyShapes.push(propertyShape);
         propertyShapesByNode.set(propertyShape.node, propertyShape);
       } else {
         // A node shape is a shape in the shapes graph that is not the subject of a triple with sh:path as its predicate. It is recommended, but not required, for a node shape to be declared as a SHACL instance of sh:NodeShape. SHACL instances of sh:NodeShape cannot have a value for the property sh:path.
-        const nodeShape = new NodeShape({ node: shapeNode, shapesGraph });
+        const nodeShape = new NodeShape({ node: shapeNode, shapesGraph: this });
         nodeShapes.push(nodeShape);
         nodeShapesByNode.set(nodeShape.node, nodeShape);
       }
