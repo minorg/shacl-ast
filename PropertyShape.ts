@@ -1,168 +1,99 @@
 import { Shape } from "./Shape.js";
-import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
-import { dash, sh, xsd } from "@tpluscode/rdf-ns-builders";
+import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import { dash, sh } from "@tpluscode/rdf-ns-builders";
 import { PropertyGroup } from "./PropertyGroup.js";
-import { NodeShape } from "./NodeShape.js";
-import { getRdfList } from "./getRdfList.js";
-import { requireNonNull } from "./requireNonNull.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
-
-type PropertyShapeValue = BlankNode | Literal | NamedNode;
+import { Maybe } from "purify-ts";
+import { mapTermToBoolean } from "./mapTermToBoolean.js";
+import { Resource } from "./Resource.js";
+import { PropertyPath } from "./PropertyPath.js";
 
 export class PropertyShape extends Shape {
-  get classes(): readonly NamedNode[] {
-    return this.filterAndMapObjects(sh.class, (term) =>
-      term.termType === "NamedNode" ? term : null,
-    );
+  readonly constraints: PropertyShape.Constraints;
+
+  constructor(parameters: Resource.Parameters) {
+    super(parameters);
+    this.constraints = new PropertyShape.Constraints(parameters);
   }
 
-  get datatype(): NamedNode | null {
-    return this.findAndMapObject(sh.datatype, (term) =>
-      term.termType === "NamedNode" ? term : null,
-    );
-  }
-
-  get defaultValue(): PropertyShapeValue | null {
-    return this.findAndMapObject(sh.defaultValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
-    );
-  }
-
-  get editor(): NamedNode | null {
+  get editor(): Maybe<NamedNode> {
     return this.findAndMapObject(dash.editor, (term) =>
-      term.termType === "NamedNode" ? term : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 
-  get group(): PropertyGroup | null {
+  get group(): Maybe<PropertyGroup> {
     return this.findAndMapObject(sh.group, (term) =>
       term.termType === "NamedNode"
         ? this.shapesGraph.propertyGroupByNode(term)
-        : null,
+        : Maybe.empty(),
     );
   }
 
-  get hasValue(): PropertyShapeValue | null {
-    return this.findAndMapObject(sh.hasValue, (term) =>
-      hasPropertyShapeValueTermType(term) ? (term as PropertyShapeValue) : null,
-    );
-  }
-
-  get in_(): readonly PropertyShapeValue[] | null {
-    return this.findAndMapObject(sh.in, (term) => {
-      switch (term.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          return [...getRdfList({
-            dataset: this.dataset,
-            node: term,
-          })];
-        default:
-          return null;
-      }
-    });
-  }
-
-  get maxCount(): number | null {
+  get order(): Maybe<number> {
     return this.findAndMapObject(sh.maxCount, mapTermToNumber);
   }
 
-  get minCount(): number | null {
-    return this.findAndMapObject(sh.minCount, mapTermToNumber);
-  }
-
-  get nodeShapes(): readonly NodeShape[] {
-    return this.filterAndMapObjects(sh.node, (term) => {
-      switch (term.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          return this.shapesGraph.nodeShapeByNode(term);
-        default:
-          return null;
-      }
-    });
-  }
-
-  get or(): readonly PropertyShape[] {
-    const propertyShapes: PropertyShape[] = [];
-    for (const orQuad of this.dataset.match(
+  get path(): PropertyPath {
+    for (const quad of this.dataset.match(
       this.node,
-      sh.or,
+      sh.path,
       null,
-      this.shapesGraph.graphNode,
+      this.shapesGraph.node,
     )) {
-      switch (orQuad.object.termType) {
+      switch (quad.object.termType) {
         case "BlankNode":
         case "NamedNode":
-          break;
+          const path = PropertyPath.fromNode({
+            dataset: this.dataset,
+            node: quad.object,
+          });
+          if (path.isLeft()) {
+            throw path.extract() as Error;
+          }
+          return path.extract() as PropertyPath;
         default:
-          continue;
-      }
-
-      for (const propertyShapeNode of getRdfList({
-        dataset: this.dataset,
-        graph: this.shapesGraph.graphNode,
-        node: orQuad.object,
-      })) {
-        switch (propertyShapeNode.termType) {
-          case "BlankNode":
-          case "NamedNode":
-            propertyShapes.push(
-              this.shapesGraph.propertyShapeByNode(propertyShapeNode),
-            );
-            break;
-        }
+          throw new Error(
+            `non-BlankNode/NamedNode sh:path found on property shape ${this.node.value}: ${quad.object.termType} ${quad.object.value}`,
+          );
       }
     }
-    return propertyShapes;
+    throw new Error(`no sh:path found on property shape ${this.node.value}`);
   }
 
-  get order(): number | null {
-    return this.findAndMapObject(sh.maxCount, mapTermToNumber);
+  get singleLine(): Maybe<boolean> {
+    return this.findAndMapObject(dash.singleLine, mapTermToBoolean);
   }
 
-  get path(): NamedNode {
-    return requireNonNull(
-      this.findAndMapObject(sh.path, (term) =>
-        term.termType === "NamedNode" ? (term as NamedNode) : null,
-      ),
-    );
+  override toString(): string {
+    const keyValues: string[] = [`node=${this.node.value}`];
+    const path = this.path;
+    if (path.kind === "PredicatePath") {
+      keyValues.push(`path=${path.iri.value}`);
+    }
+    return `PropertyShape(${keyValues.join(", ")})`;
   }
 
-  get singleLine(): boolean | null {
-    return this.findAndMapObject(dash.singleLine, (term) => {
-      if (term.termType !== "Literal") {
-        return null;
-      } else if (!term.datatype.equals(xsd.boolean)) {
-        return null;
-      }
-      switch (term.value.toLowerCase()) {
-        case "1":
-        case "true":
-          return true;
-        case "0":
-        case "false":
-          return false;
-        default:
-          return null;
-      }
-    });
-  }
-
-  get viewer(): NamedNode | null {
+  get viewer(): Maybe<NamedNode> {
     return this.findAndMapObject(dash.viewer, (term) =>
-      term.termType === "NamedNode" ? (term as NamedNode) : null,
+      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
     );
   }
 }
 
-const hasPropertyShapeValueTermType = (term: Term): boolean => {
-  switch (term.termType) {
-    case "BlankNode":
-    case "NamedNode":
-    case "Literal":
-      return true;
-    default:
-      return false;
+export namespace PropertyShape {
+  export class Constraints extends Shape.Constraints {
+    get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
+      return this.findAndMapObject(sh.defaultValue, (term) => {
+        switch (term.termType) {
+          case "BlankNode":
+          case "NamedNode":
+          case "Literal":
+            return Maybe.of(term);
+          default:
+            return Maybe.empty();
+        }
+      });
+    }
   }
-};
+}

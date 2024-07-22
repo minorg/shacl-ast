@@ -1,4 +1,10 @@
-import { BlankNode, DatasetCore, DefaultGraph, Literal, NamedNode } from "@rdfjs/types";
+import {
+  BlankNode,
+  DatasetCore,
+  DefaultGraph,
+  Literal,
+  NamedNode,
+} from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 
 export function* getRdfList({
@@ -7,7 +13,7 @@ export function* getRdfList({
   node,
 }: {
   dataset: DatasetCore;
-  graph?: BlankNode | DefaultGraph | NamedNode;
+  graph?: BlankNode | DefaultGraph | NamedNode | null;
   node: BlankNode | NamedNode;
 }): Generator<BlankNode | Literal | NamedNode> {
   if (node.equals(rdf.nil)) {
