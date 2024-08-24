@@ -1,9 +1,9 @@
 import { sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
-import type {Resource} from "rdfjs-resource";
+import type { Resource } from "rdfjs-resource";
 import type { PropertyShape } from "./PropertyShape.js";
 import { Shape } from "./Shape.js";
-import type {ShapesGraph} from "./ShapesGraph.js";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class NodeShape extends Shape {
   readonly constraints: NodeShape.Constraints;
@@ -21,11 +21,16 @@ export class NodeShape extends Shape {
 export namespace NodeShape {
   export class Constraints extends Shape.Constraints {
     get closed(): Maybe<boolean> {
-      return this.resource.value(sh.closed).chain(value => value.toBoolean());
+      return this.resource.value(sh.closed).chain((value) => value.toBoolean());
     }
 
     get properties(): readonly PropertyShape[] {
-      return [...this.resource.values(sh.property)].flatMap(value => value.toIdentifier().chain(shapeNode => this.shapesGraph.propertyShapeByNode(shapeNode)).toList());
+      return [...this.resource.values(sh.property)].flatMap((value) =>
+        value
+          .toIdentifier()
+          .chain((shapeNode) => this.shapesGraph.propertyShapeByNode(shapeNode))
+          .toList(),
+      );
     }
   }
 }

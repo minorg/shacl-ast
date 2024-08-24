@@ -26,6 +26,7 @@ describe("PropertyShape", () => {
       },
     );
     expect(propertyShape).toBeDefined();
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     return propertyShape!;
   };
 
@@ -73,12 +74,12 @@ describe("PropertyShape", () => {
     expect(in_).toHaveLength(2);
     expect(
       in_.find(
-        (member) => member.termType === "Literal" && member.value == "female",
+        (member) => member.termType === "Literal" && member.value === "female",
       ),
     );
     expect(
       in_.find(
-        (member) => member.termType === "Literal" && member.value == "male",
+        (member) => member.termType === "Literal" && member.value === "male",
       ),
     );
   });

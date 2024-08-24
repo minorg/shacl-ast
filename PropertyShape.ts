@@ -1,44 +1,56 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
-import type {Resource} from "rdfjs-resource";
+import type { Resource } from "rdfjs-resource";
 import type { PropertyGroup } from "./PropertyGroup.js";
 import { PropertyPath } from "./PropertyPath.js";
 import { Shape } from "./Shape.js";
-import type {ShapesGraph} from "./ShapesGraph.js";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class PropertyShape extends Shape {
   readonly constraints: PropertyShape.Constraints;
 
-  constructor(resource: Resource, private readonly shapesGraph: ShapesGraph) {
+  constructor(
+    resource: Resource,
+    private readonly shapesGraph: ShapesGraph,
+  ) {
     super(resource);
     this.constraints = new PropertyShape.Constraints(resource, shapesGraph);
   }
 
   get editor(): Maybe<NamedNode> {
-    return this.resource.value(dash.editor).chain(value => value.toIri());
+    return this.resource.value(dash.editor).chain((value) => value.toIri());
   }
 
   get group(): Maybe<PropertyGroup> {
-    return this.resource.value(sh.group).chain(value => value.toIri()).chain(node => this.shapesGraph.propertyGroupByNode(node));
+    return this.resource
+      .value(sh.group)
+      .chain((value) => value.toIri())
+      .chain((node) => this.shapesGraph.propertyGroupByNode(node));
   }
 
   get order(): Maybe<number> {
-    return this.resource.value(sh.maxCount).chain(value => value.toNumber());
+    return this.resource.value(sh.maxCount).chain((value) => value.toNumber());
   }
 
   get path(): PropertyPath {
-    return this.resource.value(sh.path).chain(value => value.toResource()).map(resource => {
+    return this.resource
+      .value(sh.path)
+      .chain((value) => value.toResource())
+      .map((resource) => {
         const path = PropertyPath.fromResource(resource);
         if (path.isLeft()) {
           throw path.extract() as Error;
         }
         return path.unsafeCoerce();
-    }).unsafeCoerce();
+      })
+      .unsafeCoerce();
   }
 
   get singleLine(): Maybe<boolean> {
-    return this.resource.value(dash.singleLine).chain(value => value.toBoolean());
+    return this.resource
+      .value(dash.singleLine)
+      .chain((value) => value.toBoolean());
   }
 
   override toString(): string {
@@ -51,14 +63,16 @@ export class PropertyShape extends Shape {
   }
 
   get viewer(): Maybe<NamedNode> {
-    return this.resource.value(dash.viewer).chain(value => value.toIri());
+    return this.resource.value(dash.viewer).chain((value) => value.toIri());
   }
 }
 
 export namespace PropertyShape {
   export class Constraints extends Shape.Constraints {
     get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
-      return this.resource.value(sh.defaultValue).map(value => value.toTerm());
+      return this.resource
+        .value(sh.defaultValue)
+        .map((value) => value.toTerm());
     }
   }
 }
