@@ -104,4 +104,10 @@ describe("PropertyShape", () => {
       ),
     ).toStrictEqual(true);
   });
+
+  it("should convert to a string", ({ expect }) => {
+    expect(
+      findPropertyShape(schema.Person, schema.givenName).toString(),
+    ).not.toHaveLength(0);
+  });
 });
