@@ -1,72 +1,60 @@
-import { Shape } from "./Shape.js";
-import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, sh } from "@tpluscode/rdf-ns-builders";
-import { PropertyGroup } from "./PropertyGroup.js";
-import { mapTermToNumber } from "./mapTermToNumber.js";
-import { Maybe } from "purify-ts";
-import { mapTermToBoolean } from "./mapTermToBoolean.js";
-import { Resource } from "./Resource.js";
+import type { Maybe } from "purify-ts";
+import type { Resource } from "rdfjs-resource";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import { PropertyPath } from "./PropertyPath.js";
+import { Shape } from "./Shape.js";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class PropertyShape extends Shape {
   readonly constraints: PropertyShape.Constraints;
 
-  constructor(parameters: Resource.Parameters) {
-    super(parameters);
-    this.constraints = new PropertyShape.Constraints(parameters);
+  constructor(
+    resource: Resource,
+    private readonly shapesGraph: ShapesGraph,
+  ) {
+    super(resource);
+    this.constraints = new PropertyShape.Constraints(resource, shapesGraph);
   }
 
   get editor(): Maybe<NamedNode> {
-    return this.findAndMapObject(dash.editor, (term) =>
-      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-    );
+    return this.resource.value(dash.editor).chain((value) => value.toIri());
   }
 
   get group(): Maybe<PropertyGroup> {
-    return this.findAndMapObject(sh.group, (term) =>
-      term.termType === "NamedNode"
-        ? this.shapesGraph.propertyGroupByNode(term)
-        : Maybe.empty(),
-    );
+    return this.resource
+      .value(sh.group)
+      .chain((value) => value.toIri())
+      .chain((node) => this.shapesGraph.propertyGroupByNode(node));
   }
 
   get order(): Maybe<number> {
-    return this.findAndMapObject(sh.maxCount, mapTermToNumber);
+    return this.resource.value(sh.maxCount).chain((value) => value.toNumber());
   }
 
   get path(): PropertyPath {
-    for (const quad of this.dataset.match(
-      this.node,
-      sh.path,
-      null,
-      this.shapesGraph.node,
-    )) {
-      switch (quad.object.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          const path = PropertyPath.fromNode({
-            dataset: this.dataset,
-            node: quad.object,
-          });
-          if (path.isLeft()) {
-            throw path.extract() as Error;
-          }
-          return path.extract() as PropertyPath;
-        default:
-          throw new Error(
-            `non-BlankNode/NamedNode sh:path found on property shape ${this.node.value}: ${quad.object.termType} ${quad.object.value}`,
-          );
-      }
-    }
-    throw new Error(`no sh:path found on property shape ${this.node.value}`);
+    return this.resource
+      .value(sh.path)
+      .chain((value) => value.toResource())
+      .map((resource) => {
+        const path = PropertyPath.fromResource(resource);
+        if (path.isLeft()) {
+          throw path.extract() as Error;
+        }
+        return path.unsafeCoerce();
+      })
+      .unsafeCoerce();
   }
 
   get singleLine(): Maybe<boolean> {
-    return this.findAndMapObject(dash.singleLine, mapTermToBoolean);
+    return this.resource
+      .value(dash.singleLine)
+      .chain((value) => value.toBoolean());
   }
 
   override toString(): string {
-    const keyValues: string[] = [`node=${this.node.value}`];
+    const keyValues: string[] = [`node=${this.resource.identifier.value}`];
     const path = this.path;
     if (path.kind === "PredicatePath") {
       keyValues.push(`path=${path.iri.value}`);
@@ -75,25 +63,16 @@ export class PropertyShape extends Shape {
   }
 
   get viewer(): Maybe<NamedNode> {
-    return this.findAndMapObject(dash.viewer, (term) =>
-      term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-    );
+    return this.resource.value(dash.viewer).chain((value) => value.toIri());
   }
 }
 
 export namespace PropertyShape {
   export class Constraints extends Shape.Constraints {
     get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
-      return this.findAndMapObject(sh.defaultValue, (term) => {
-        switch (term.termType) {
-          case "BlankNode":
-          case "NamedNode":
-          case "Literal":
-            return Maybe.of(term);
-          default:
-            return Maybe.empty();
-        }
-      });
+      return this.resource
+        .value(sh.defaultValue)
+        .map((value) => value.toTerm());
     }
   }
 }

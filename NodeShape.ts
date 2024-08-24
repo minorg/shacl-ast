@@ -1,42 +1,36 @@
-import { Shape } from "./Shape.js";
-import { PropertyShape } from "./PropertyShape.js";
-import { BlankNode, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
-import { mapTermToBoolean } from "./mapTermToBoolean.js";
-import { Resource } from "./Resource.js";
+import type { Maybe } from "purify-ts";
+import type { Resource } from "rdfjs-resource";
+import type { PropertyShape } from "./PropertyShape.js";
+import { Shape } from "./Shape.js";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class NodeShape extends Shape {
   readonly constraints: NodeShape.Constraints;
 
-  constructor(parameters: Resource.Parameters) {
-    super(parameters);
-    this.constraints = new NodeShape.Constraints(parameters);
+  constructor(resource: Resource, shapesGraph: ShapesGraph) {
+    super(resource);
+    this.constraints = new NodeShape.Constraints(resource, shapesGraph);
   }
 
   override toString(): string {
-    return `NodeShape(node=${this.node.value})`;
+    return `NodeShape(node=${this.resource.identifier.value})`;
   }
 }
 
 export namespace NodeShape {
   export class Constraints extends Shape.Constraints {
     get closed(): Maybe<boolean> {
-      return this.findAndMapObject(sh.closed, mapTermToBoolean);
+      return this.resource.value(sh.closed).chain((value) => value.toBoolean());
     }
 
     get properties(): readonly PropertyShape[] {
-      return this.filterAndMapObjects(sh.property, (propertyObject) => {
-        switch (propertyObject.termType) {
-          case "BlankNode":
-          case "NamedNode":
-            return this.shapesGraph.propertyShapeByNode(
-              propertyObject as BlankNode | NamedNode,
-            );
-          default:
-            return Maybe.empty();
-        }
-      });
+      return [...this.resource.values(sh.property)].flatMap((value) =>
+        value
+          .toIdentifier()
+          .chain((shapeNode) => this.shapesGraph.propertyShapeByNode(shapeNode))
+          .toList(),
+      );
     }
   }
 }

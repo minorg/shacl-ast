@@ -8,24 +8,19 @@
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
     "purify-ts": "^2.1.0",
-    "rdf-literal": "^1.3.2"
+    "rdfjs-resource": "^1.0.0"
   },
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "devDependencies": {
+    "@biomejs/biome": "1.8.3",
     "@tsconfig/strictest": "^2.0.5",
     "@types/n3": "^1.16.4",
     "n3": "^1.17.4",
-    "prettier": "^3.3.3",
     "rimraf": "3.0.2",
     "typescript": "^5.5",
     "vitest": "^2.0.3"
   },
-  "files": [
-    "*.d.ts",
-    "*.d.ts.map",
-    "*.js",
-    "*.js.map"
-  ],
+  "files": ["*.d.ts", "*.d.ts.map", "*.js", "*.js.map"],
   "license": "Apache-2.0",
   "main": "index.js",
   "name": "shacl-ast",
@@ -35,13 +30,15 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "tsc -b --clean",
-    "rebuild": "tsc -b --clean && tsc -b",
-    "test": "vitest",
+    "check": "biome check",
+    "check:write": "biome check --write",
+    "check:write:unsafe": "biome check --write --unsafe",
+    "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "test": "biome check && vitest",
     "test:watch": "vitest watch",
     "watch": "tsc -w --preserveWatchOutput"
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
