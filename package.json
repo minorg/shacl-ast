@@ -8,7 +8,8 @@
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
     "purify-ts": "^2.1.0",
-    "rdf-literal": "^1.3.2"
+    "rdf-literal": "^1.3.2",
+    "rdfjs-resource": "^1.0.0"
   },
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "devDependencies": {
@@ -21,7 +22,12 @@
     "typescript": "^5.5",
     "vitest": "^2.0.3"
   },
-  "files": ["*.d.ts", "*.d.ts.map", "*.js", "*.js.map"],
+  "files": [
+    "*.d.ts",
+    "*.d.ts.map",
+    "*.js",
+    "*.js.map"
+  ],
   "license": "Apache-2.0",
   "main": "index.js",
   "name": "shacl-ast",

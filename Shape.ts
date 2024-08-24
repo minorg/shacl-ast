@@ -1,180 +1,104 @@
-import type { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
-import { Either, Left, Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
+import type {Resource} from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
-import { Resource } from "./Resource.js";
-import { getRdfList } from "./getRdfList.js";
-import { mapTermToNumber } from "./mapTermToNumber.js";
+import type {ShapesGraph} from "./ShapesGraph.js";
 
-export abstract class Shape extends Resource {
+export abstract class Shape {
   abstract readonly constraints: Shape.Constraints;
   readonly targets: Shape.Targets;
 
-  constructor(parameters: Resource.Parameters) {
-    super(parameters);
-    this.targets = new Shape.Targets(parameters);
+  protected constructor(protected readonly resource: Resource) {
+    this.targets = new Shape.Targets(resource);
   }
 
   get description(): Maybe<Literal> {
-    return this.findAndMapObject(sh.description, (term) =>
-      term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-    );
+    return this.resource.value(sh.description).chain(value => value.toLiteral());
   }
 
   get name(): Maybe<Literal> {
-    return this.findAndMapObject(sh.name, (term) =>
-      term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-    );
-  }
-}
-
-function toShapeNode(term: Term): Maybe<BlankNode | NamedNode> {
-  switch (term.termType) {
-    case "BlankNode":
-    case "NamedNode":
-      return Maybe.of(term);
-    default:
-      return Maybe.empty();
+    return this.resource.value(sh.name).chain(value => value.toLiteral());
   }
 }
 
 export namespace Shape {
-  export class Constraints extends Resource {
+  export class Constraints {
+    constructor(protected readonly resource: Resource, protected readonly shapesGraph: ShapesGraph) {
+    }
+
     get and(): readonly Shape[] {
       return this.listTakingLogicalConstraint(sh.and);
     }
 
     get classes(): readonly NamedNode[] {
-      return this.filterAndMapObjects(sh.class, (term) =>
-        term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return [...this.resource.values(sh.class)].flatMap(value => value.toIri().toList());
     }
 
     get datatype(): Maybe<NamedNode> {
-      return this.findAndMapObject(sh.datatype, (term) =>
-        term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return this.resource.value(sh.datatype).chain(value => value.toIri());
     }
 
     get hasValue(): Maybe<BlankNode | Literal | NamedNode> {
-      return this.findAndMapObject(sh.hasValue, (term) => {
-        switch (term.termType) {
-          case "BlankNode":
-          case "Literal":
-          case "NamedNode":
-            return Maybe.of(term);
-          default:
-            return Maybe.empty();
-        }
-      });
+      return this.resource.value(sh.hasValue).map(value => value.toTerm());
     }
 
     get in_(): Maybe<readonly (BlankNode | Literal | NamedNode)[]> {
-      return this.findAndMapObject(sh.in, (term) => {
-        switch (term.termType) {
-          case "BlankNode":
-          case "NamedNode":
-            return Maybe.of(
-              [
-                ...getRdfList({
-                  dataset: this.dataset,
-                  graph: this.shapesGraph.node,
-                  node: term,
-                }),
-              ].filter((term) => {
-                switch (term.termType) {
-                  case "BlankNode":
-                  case "Literal":
-                  case "NamedNode":
-                    return true;
-                  default:
-                    return false;
-                }
-              }),
-            );
-          default:
-            return Maybe.empty();
-        }
-      });
+      return this.resource.value(sh.in).chain(value => value.toList().toMaybe()).map(values => values.map(value => value.toTerm()));
     }
 
     get maxCount(): Maybe<number> {
-      return this.findAndMapObject(sh.maxCount, mapTermToNumber);
+      return this.resource.value(sh.maxCount).chain(value => value.toNumber());
     }
 
     get maxExclusive(): Maybe<Literal> {
-      return this.findAndMapObject(sh.maxExclusive, (term) =>
-        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return this.resource.value(sh.maxExclusive).chain(value => value.toLiteral());
     }
 
     get maxInclusive(): Maybe<Literal> {
-      return this.findAndMapObject(sh.maxInclusive, (term) =>
-        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return this.resource.value(sh.maxInclusive).chain(value => value.toLiteral());
     }
 
     get minCount(): Maybe<number> {
-      return this.findAndMapObject(sh.minCount, mapTermToNumber);
+      return this.resource.value(sh.minCount).chain(value => value.toNumber());
     }
 
     get minExclusive(): Maybe<Literal> {
-      return this.findAndMapObject(sh.minExclusive, (term) =>
-        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return this.resource.value(sh.minExclusive).chain(value => value.toLiteral());
     }
 
     get minInclusive(): Maybe<Literal> {
-      return this.findAndMapObject(sh.minInclusive, (term) =>
-        term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return this.resource.value(sh.minInclusive).chain(value => value.toLiteral());
     }
 
     get nodeKinds(): readonly NodeKind[] {
-      return this.filterAndMapObjects(sh.nodeKind, (term) => {
-        if (term.termType !== "NamedNode") {
-          return Maybe.empty();
-        }
+      return [...this.resource.values(sh.nodeKind)].flatMap(value => value.toIri().chain(term => {
         if (term.equals(sh.BlankNode)) {
           return Maybe.of(NodeKind.BLANK_NODE);
-        } else if (term.equals(sh.BlankNodeOrIRI)) {
+        }if (term.equals(sh.BlankNodeOrIRI)) {
           return Maybe.of(NodeKind.BLANK_NODE_OR_IRI);
-        } else if (term.equals(sh.BlankNodeOrLiteral)) {
+        }if (term.equals(sh.BlankNodeOrLiteral)) {
           return Maybe.of(NodeKind.BLANK_NODE_OR_LITERAL);
-        } else if (term.equals(sh.IRI)) {
+        }if (term.equals(sh.IRI)) {
           return Maybe.of(NodeKind.IRI);
-        } else if (term.equals(sh.IRIOrLiteral)) {
+        }if (term.equals(sh.IRIOrLiteral)) {
           return Maybe.of(NodeKind.IRI_OR_LITERAL);
-        } else if (term.equals(sh.Literal)) {
+        }if (term.equals(sh.Literal)) {
           return Maybe.of(NodeKind.LITERAL);
-        } else {
-          return Maybe.empty();
         }
-      });
+          return Maybe.empty();
+      }).toList());
     }
 
     get nodes(): readonly NodeShape[] {
-      return this.filterAndMapObjects(sh.node, (term) =>
-        toShapeNode(term).chain((shapeNode) =>
+      return [...this.resource.values(sh.node)].flatMap( (value) => value.toIdentifier().chain(shapeNode =>
           this.shapesGraph.nodeShapeByNode(shapeNode),
-        ),
-      );
+        ).toList());
     }
 
     get not(): readonly Shape[] {
-      const shapes: Shape[] = [];
-      for (const quad of this.dataset.match(
-        this.node,
-        sh.not,
-        null,
-        this.shapesGraph.node,
-      )) {
-        toShapeNode(quad.object).ifJust((shapeNode) =>
-          shapes.push(...this.shapesGraph.shapeByNode(shapeNode).toList()),
-        );
-      }
-      return shapes;
+      return [...this.resource.values(sh.not)].flatMap(value => value.toIdentifier().chain(shapeNode => this.shapesGraph.shapeByNode(shapeNode)).toList());
     }
 
     get or(): readonly Shape[] {
@@ -185,81 +109,29 @@ export namespace Shape {
       return this.listTakingLogicalConstraint(sh.xone);
     }
 
-    private list(
-      listNode: Term,
-    ): Either<Error, readonly (BlankNode | NamedNode | Literal)[]> {
-      switch (listNode.termType) {
-        case "BlankNode":
-        case "NamedNode":
-          break;
-        default:
-          return Left(
-            new Error(`${listNode.termType} ${listNode.value} is not a node`),
-          );
-      }
-
-      return Either.encase(() => [
-        ...getRdfList({
-          dataset: this.dataset,
-          graph: this.shapesGraph.node,
-          node: listNode,
-        }),
-      ]);
-    }
-
-    private listTakingLogicalConstraint(predicate: NamedNode) {
-      const shapes: Shape[] = [];
-      for (const quad of this.dataset.match(
-        this.node,
-        predicate,
-        null,
-        this.shapesGraph.node,
-      )) {
-        shapes.push(...this.shapeList(quad.object).orDefault([]));
-      }
-      return shapes;
-    }
-
-    private shapeList(shapeListNode: Term): Either<Error, readonly Shape[]> {
-      return this.list(shapeListNode).map((terms) =>
-        terms
-          .flatMap((term) =>
-            toShapeNode(term)
-              .map((shapeNode) =>
-                this.shapesGraph.shapeByNode(shapeNode).toList(),
-              )
-              .toList(),
-          )
-          .flat(),
-      );
+    private listTakingLogicalConstraint(predicate: NamedNode): readonly Shape[] {
+      return this.resource.value(predicate).chain(value => value.toList().toMaybe()).map(values => values.flatMap(value => value.toIdentifier().chain(shapeNode => this.shapesGraph.shapeByNode(shapeNode)).toList())).orDefault([]);
     }
   }
 
-  export class Targets extends Resource {
+  export class Targets {
+    constructor(protected readonly resource: Resource) {
+    }
+
     get targetClasses(): readonly NamedNode[] {
-      return this.filterAndMapObjects(sh.targetClass, (term) =>
-        term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return [...this.resource.values(sh.targetClass)].flatMap(value => value.toIri().toList());
     }
 
     get targetNodes(): readonly (Literal | NamedNode)[] {
-      return this.filterAndMapObjects(sh.targetNode, (term) =>
-        term.termType === "Literal" || term.termType === "NamedNode"
-          ? Maybe.of(term)
-          : Maybe.empty(),
-      );
+      return [...this.resource.values(sh.targetNode)].flatMap(value => (value.toLiteral() as Maybe<Literal | NamedNode>).altLazy(() => value.toIri()).toList());
     }
 
     get targetObjectsOf(): readonly NamedNode[] {
-      return this.filterAndMapObjects(sh.targetObjectsOf, (term) =>
-        term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return [...this.resource.values(sh.targetObjectsOf)].flatMap(value => value.toIri().toList());
     }
 
     get targetSubjectsOf(): readonly NamedNode[] {
-      return this.filterAndMapObjects(sh.targetSubjectsOf, (term) =>
-        term.termType === "NamedNode" ? Maybe.of(term) : Maybe.empty(),
-      );
+      return [...this.resource.values(sh.targetSubjectsOf)].flatMap(value => value.toIri().toList());
     }
   }
 }

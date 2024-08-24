@@ -1,17 +1,13 @@
-import type { Literal, NamedNode } from "@rdfjs/types";
+import type { Literal } from "@rdfjs/types";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
-import { Resource } from "./Resource.js";
-import type { ShapesGraph } from "./ShapesGraph.js";
+import type { Maybe } from "purify-ts";
+import type {Resource} from "rdfjs-resource";
 
-export class PropertyGroup extends Resource {
-  constructor(kwds: { node: NamedNode; shapesGraph: ShapesGraph }) {
-    super(kwds);
+export class PropertyGroup {
+  constructor(private readonly resource: Resource) {
   }
 
   get label(): Maybe<Literal> {
-    return this.findAndMapObject(rdfs.label, (term) =>
-      term.termType === "Literal" ? Maybe.of(term) : Maybe.empty(),
-    );
+    return this.resource.value(rdfs.label).chain(value => value.toLiteral());
   }
 }
