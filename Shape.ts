@@ -10,7 +10,7 @@ export abstract class Shape {
   abstract readonly constraints: Shape.Constraints;
   readonly targets: Shape.Targets;
 
-  protected constructor(protected readonly resource: Resource) {
+  protected constructor(readonly resource: Resource) {
     this.targets = new Shape.Targets(resource);
   }
 
