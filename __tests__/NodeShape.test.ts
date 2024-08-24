@@ -25,4 +25,10 @@ describe("NodeShape", () => {
         .constraints.closed.unsafeCoerce(),
     ).toStrictEqual(true);
   });
+
+  it("should convert to a string", ({ expect }) => {
+    expect(
+      shapesGraph.nodeShapeByNode(schema.Person).unsafeCoerce().toString(),
+    ).not.toHaveLength(0);
+  });
 });

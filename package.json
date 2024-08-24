@@ -15,6 +15,7 @@
     "@biomejs/biome": "1.8.3",
     "@tsconfig/strictest": "^2.0.5",
     "@types/n3": "^1.16.4",
+    "@vitest/coverage-v8": "^2.0.5",
     "n3": "^1.17.4",
     "rimraf": "3.0.2",
     "typescript": "^5.5",
@@ -35,6 +36,7 @@
     "check:write:unsafe": "biome check --write --unsafe",
     "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
     "test": "biome check && vitest",
+    "test:coverage": "biome check && vitest run --coverage",
     "test:watch": "vitest watch",
     "watch": "tsc -w --preserveWatchOutput"
   },
