@@ -1,6 +1,6 @@
 # shacl-ast
 
-Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset.
+Build an Abstract Syntax Tree (AST) of [Shapes Constraint Language (SHACL)](https://www.w3.org/TR/shacl/) shapes in an [RDF/JS Dataset](https://rdf.js.org/dataset-spec/).
 
 ## Installation
 
