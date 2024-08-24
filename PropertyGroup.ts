@@ -1,8 +1,8 @@
-import { Literal, NamedNode } from "@rdfjs/types";
-import { ShapesGraph } from "./ShapesGraph.js";
+import type { Literal, NamedNode } from "@rdfjs/types";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
-import { Resource } from "./Resource.js";
 import { Maybe } from "purify-ts";
+import { Resource } from "./Resource.js";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class PropertyGroup extends Resource {
   constructor(kwds: { node: NamedNode; shapesGraph: ShapesGraph }) {

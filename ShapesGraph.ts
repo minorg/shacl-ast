@@ -1,4 +1,6 @@
-import {
+import TermMap from "@rdfjs/term-map";
+import TermSet from "@rdfjs/term-set";
+import type {
   BlankNode,
   DatasetCore,
   DefaultGraph,
@@ -6,15 +8,13 @@ import {
   Term,
 } from "@rdfjs/types";
 import { rdf, sh } from "@tpluscode/rdf-ns-builders";
-import { NodeShape } from "./NodeShape.js";
-import { PropertyShape } from "./PropertyShape.js";
-import { PropertyGroup } from "./PropertyGroup.js";
-import TermMap from "@rdfjs/term-map";
-import TermSet from "@rdfjs/term-set";
 import { Maybe } from "purify-ts";
-import { getRdfList } from "./getRdfList.js";
-import { Shape } from "./Shape.js";
+import { NodeShape } from "./NodeShape.js";
+import { PropertyGroup } from "./PropertyGroup.js";
+import { PropertyShape } from "./PropertyShape.js";
+import type { Shape } from "./Shape.js";
 import { getRdfInstances } from "./getRdfInstances.js";
+import { getRdfList } from "./getRdfList.js";
 
 export class ShapesGraph {
   private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;

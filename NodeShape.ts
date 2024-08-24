@@ -1,10 +1,10 @@
-import { Shape } from "./Shape.js";
-import { PropertyShape } from "./PropertyShape.js";
-import { BlankNode, NamedNode } from "@rdfjs/types";
+import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
+import type { PropertyShape } from "./PropertyShape.js";
+import type { Resource } from "./Resource.js";
+import { Shape } from "./Shape.js";
 import { mapTermToBoolean } from "./mapTermToBoolean.js";
-import { Resource } from "./Resource.js";
 
 export class NodeShape extends Shape {
   readonly constraints: NodeShape.Constraints;

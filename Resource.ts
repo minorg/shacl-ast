@@ -1,6 +1,6 @@
-import { BlankNode, NamedNode, Term } from "@rdfjs/types";
-import { ShapesGraph } from "./ShapesGraph.js";
+import type { BlankNode, NamedNode, Term } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
+import type { ShapesGraph } from "./ShapesGraph.js";
 
 export abstract class Resource {
   readonly node: BlankNode | NamedNode;

@@ -1,8 +1,8 @@
-import { PropertyShape, ShapesGraph } from "..";
-import { beforeAll, describe, expect, it } from "vitest";
-import { testData } from "./testData";
+import type { NamedNode } from "@rdfjs/types";
 import { schema, xsd } from "@tpluscode/rdf-ns-builders";
-import { NamedNode } from "@rdfjs/types";
+import { beforeAll, describe, expect, it } from "vitest";
+import { type PropertyShape, ShapesGraph } from "..";
+import { testData } from "./testData";
 
 describe("PropertyShape", () => {
   let shapesGraph: ShapesGraph;

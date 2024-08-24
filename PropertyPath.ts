@@ -1,4 +1,4 @@
-import { BlankNode, DatasetCore, NamedNode, Term } from "@rdfjs/types";
+import type { BlankNode, DatasetCore, NamedNode, Term } from "@rdfjs/types";
 import { rdf, sh } from "@tpluscode/rdf-ns-builders";
 import { Either, Left } from "purify-ts";
 import { getRdfList } from "./getRdfList.js";

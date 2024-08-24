@@ -1,12 +1,12 @@
-import { Shape } from "./Shape.js";
-import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, sh } from "@tpluscode/rdf-ns-builders";
-import { PropertyGroup } from "./PropertyGroup.js";
-import { mapTermToNumber } from "./mapTermToNumber.js";
 import { Maybe } from "purify-ts";
-import { mapTermToBoolean } from "./mapTermToBoolean.js";
-import { Resource } from "./Resource.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import { PropertyPath } from "./PropertyPath.js";
+import type { Resource } from "./Resource.js";
+import { Shape } from "./Shape.js";
+import { mapTermToBoolean } from "./mapTermToBoolean.js";
+import { mapTermToNumber } from "./mapTermToNumber.js";
 
 export class PropertyShape extends Shape {
   readonly constraints: PropertyShape.Constraints;

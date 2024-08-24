@@ -1,7 +1,7 @@
-import { ShapesGraph } from "..";
-import { beforeAll, describe, it } from "vitest";
-import { testData } from "./testData";
 import { schema } from "@tpluscode/rdf-ns-builders";
+import { beforeAll, describe, it } from "vitest";
+import { ShapesGraph } from "..";
+import { testData } from "./testData";
 
 describe("NodeShape", () => {
   let shapesGraph: ShapesGraph;

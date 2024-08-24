@@ -1,10 +1,10 @@
-import { Resource } from "./Resource.js";
+import type { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
-import { BlankNode, Literal, NamedNode, Term } from "@rdfjs/types";
-import { NodeKind } from "./NodeKind.js";
 import { Either, Left, Maybe } from "purify-ts";
+import { NodeKind } from "./NodeKind.js";
+import type { NodeShape } from "./NodeShape.js";
+import { Resource } from "./Resource.js";
 import { getRdfList } from "./getRdfList.js";
-import { NodeShape } from "./NodeShape.js";
 import { mapTermToNumber } from "./mapTermToNumber.js";
 
 export abstract class Shape extends Resource {
