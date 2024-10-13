@@ -1,6 +1,6 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { sh } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
+import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
@@ -93,33 +93,29 @@ export namespace Shape {
         .chain((value) => value.toLiteral());
     }
 
-    get nodeKinds(): readonly NodeKind[] {
-      return [...this.resource.values(sh.nodeKind)].flatMap((value) =>
-        value
-          .toIri()
-          .chain((term) => {
-            if (term.equals(sh.BlankNode)) {
-              return Maybe.of(NodeKind.BLANK_NODE);
-            }
-            if (term.equals(sh.BlankNodeOrIRI)) {
-              return Maybe.of(NodeKind.BLANK_NODE_OR_IRI);
-            }
-            if (term.equals(sh.BlankNodeOrLiteral)) {
-              return Maybe.of(NodeKind.BLANK_NODE_OR_LITERAL);
-            }
-            if (term.equals(sh.IRI)) {
-              return Maybe.of(NodeKind.IRI);
-            }
-            if (term.equals(sh.IRIOrLiteral)) {
-              return Maybe.of(NodeKind.IRI_OR_LITERAL);
-            }
-            if (term.equals(sh.Literal)) {
-              return Maybe.of(NodeKind.LITERAL);
-            }
-            return Maybe.empty();
-          })
-          .toList(),
-      );
+    get nodeKinds(): Set<NodeKind> {
+      const nodeKinds = new Set<NodeKind>();
+      for (const nodeKindValue of this.resource.values(sh.nodeKind)) {
+        const nodeKindIri = nodeKindValue.toIri().extractNullable();
+        if (nodeKindIri === null) {
+        } else if (nodeKindIri.equals(sh.BlankNode)) {
+          nodeKinds.add(NodeKind.BLANK_NODE);
+        } else if (nodeKindIri.equals(sh.BlankNodeOrIRI)) {
+          nodeKinds.add(NodeKind.BLANK_NODE);
+          nodeKinds.add(NodeKind.IRI);
+        } else if (nodeKindIri.equals(sh.BlankNodeOrLiteral)) {
+          nodeKinds.add(NodeKind.BLANK_NODE);
+          nodeKinds.add(NodeKind.LITERAL);
+        } else if (nodeKindIri.equals(sh.IRI)) {
+          nodeKinds.add(NodeKind.IRI);
+        } else if (nodeKindIri.equals(sh.IRIOrLiteral)) {
+          nodeKinds.add(NodeKind.IRI);
+          nodeKinds.add(NodeKind.LITERAL);
+        } else if (nodeKindIri.equals(sh.Literal)) {
+          nodeKinds.add(NodeKind.LITERAL);
+        }
+      }
+      return nodeKinds;
     }
 
     get nodes(): readonly NodeShape[] {
