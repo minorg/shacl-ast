@@ -8,7 +8,7 @@
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
     "purify-ts": "^2.1.0",
-    "rdfjs-resource": "1.0.2"
+    "rdfjs-resource": "1.0.5"
   },
   "description": "Build an Abstract Syntax Tree (AST) of Shapes Constraint Language (SHACL) shapes in an RDF/JS Dataset",
   "devDependencies": {
@@ -41,5 +41,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.3"
+  "version": "2.0.4"
 }
