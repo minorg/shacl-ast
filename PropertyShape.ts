@@ -19,38 +19,47 @@ export class PropertyShape extends Shape {
   }
 
   get editor(): Maybe<NamedNode> {
-    return this.resource.value(dash.editor).chain((value) => value.toIri());
+    return this.resource
+      .value(dash.editor)
+      .chain((value) => value.toIri())
+      .toMaybe();
   }
 
   get group(): Maybe<PropertyGroup> {
     return this.resource
       .value(sh.group)
       .chain((value) => value.toIri())
+      .toMaybe()
       .chain((node) => this.shapesGraph.propertyGroupByNode(node));
   }
 
   get order(): Maybe<number> {
-    return this.resource.value(sh.maxCount).chain((value) => value.toNumber());
+    return this.resource
+      .value(sh.maxCount)
+      .chain((value) => value.toNumber())
+      .toMaybe();
   }
 
   get path(): PropertyPath {
     return this.resource
       .value(sh.path)
       .chain((value) => value.toResource())
-      .map((resource) => {
-        const path = PropertyPath.fromResource(resource);
-        if (path.isLeft()) {
-          throw path.extract() as Error;
-        }
-        return path.unsafeCoerce();
-      })
+      .chain(PropertyPath.fromResource)
       .unsafeCoerce();
   }
 
   get singleLine(): Maybe<boolean> {
     return this.resource
       .value(dash.singleLine)
-      .chain((value) => value.toBoolean());
+      .chain((value) => value.toBoolean())
+      .toMaybe();
+  }
+
+  get viewer(): Maybe<NamedNode> {
+    return this.resource
+      .value(dash.viewer)
+      .chain((value) => value.toIri())
+      .toMaybe();
   }
 
   override toString(): string {
@@ -61,10 +70,6 @@ export class PropertyShape extends Shape {
     }
     return `PropertyShape(${keyValues.join(", ")})`;
   }
-
-  get viewer(): Maybe<NamedNode> {
-    return this.resource.value(dash.viewer).chain((value) => value.toIri());
-  }
 }
 
 export namespace PropertyShape {
@@ -72,7 +77,8 @@ export namespace PropertyShape {
     get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
       return this.resource
         .value(sh.defaultValue)
-        .map((value) => value.toTerm());
+        .map((value) => value.toTerm())
+        .toMaybe();
     }
   }
 }

@@ -16,6 +16,10 @@ import { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 
 export class ShapesGraph {
+  readonly node: BlankNode | DefaultGraph | NamedNode | null;
+  readonly nodeShapes: readonly NodeShape[];
+  readonly propertyGroups: readonly PropertyGroup[];
+  readonly propertyShapes: readonly PropertyShape[];
   private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShape>;
   private readonly propertyGroupsByNode: TermMap<
     BlankNode | NamedNode,
@@ -25,11 +29,6 @@ export class ShapesGraph {
     BlankNode | NamedNode,
     PropertyShape
   >;
-
-  readonly node: BlankNode | DefaultGraph | NamedNode | null;
-  readonly nodeShapes: readonly NodeShape[];
-  readonly propertyGroups: readonly PropertyGroup[];
-  readonly propertyShapes: readonly PropertyShape[];
 
   private constructor(readonly dataset: DatasetCore) {
     this.node = this.readGraph();
@@ -66,6 +65,14 @@ export class ShapesGraph {
     propertyShapeNode: BlankNode | NamedNode,
   ): Maybe<PropertyShape> {
     return Maybe.fromNullable(this.propertyShapesByNode.get(propertyShapeNode));
+  }
+
+  shapeByNode(node: BlankNode | NamedNode): Maybe<Shape> {
+    const nodeShape = this.nodeShapeByNode(node);
+    if (nodeShape.isJust()) {
+      return nodeShape;
+    }
+    return this.propertyShapeByNode(node);
   }
 
   private readGraph(): BlankNode | DefaultGraph | NamedNode | null {
@@ -227,7 +234,7 @@ export class ShapesGraph {
           .resource(quad.object)
           .toList()
           .orDefault([])) {
-          value.toIdentifier().ifJust(addShapeNode);
+          value.toIdentifier().ifRight(addShapeNode);
         }
       }
     }
@@ -263,13 +270,5 @@ export class ShapesGraph {
       propertyShapes,
       propertyShapesByNode,
     };
-  }
-
-  shapeByNode(node: BlankNode | NamedNode): Maybe<Shape> {
-    const nodeShape = this.nodeShapeByNode(node);
-    if (nodeShape.isJust()) {
-      return nodeShape;
-    }
-    return this.propertyShapeByNode(node);
   }
 }

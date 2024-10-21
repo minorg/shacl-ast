@@ -17,11 +17,15 @@ export abstract class Shape {
   get description(): Maybe<Literal> {
     return this.resource
       .value(sh.description)
-      .chain((value) => value.toLiteral());
+      .chain((value) => value.toLiteral())
+      .toMaybe();
   }
 
   get name(): Maybe<Literal> {
-    return this.resource.value(sh.name).chain((value) => value.toLiteral());
+    return this.resource
+      .value(sh.name)
+      .chain((value) => value.toLiteral())
+      .toMaybe();
   }
 }
 
@@ -38,82 +42,95 @@ export namespace Shape {
 
     get classes(): readonly NamedNode[] {
       return [...this.resource.values(sh.class)].flatMap((value) =>
-        value.toIri().toList(),
+        value.toIri().toMaybe().toList(),
       );
     }
 
     get datatype(): Maybe<NamedNode> {
-      return this.resource.value(sh.datatype).chain((value) => value.toIri());
+      return this.resource
+        .value(sh.datatype)
+        .chain((value) => value.toIri())
+        .toMaybe();
     }
 
     get hasValue(): Maybe<BlankNode | Literal | NamedNode> {
-      return this.resource.value(sh.hasValue).map((value) => value.toTerm());
+      return this.resource
+        .value(sh.hasValue)
+        .map((value) => value.toTerm())
+        .toMaybe();
     }
 
     get in_(): Maybe<readonly (BlankNode | Literal | NamedNode)[]> {
       return this.resource
         .value(sh.in)
-        .chain((value) => value.toList().toMaybe())
-        .map((values) => values.map((value) => value.toTerm()));
+        .chain((value) => value.toList())
+        .map((values) => values.map((value) => value.toTerm()))
+        .toMaybe();
     }
 
     get maxCount(): Maybe<number> {
       return this.resource
         .value(sh.maxCount)
-        .chain((value) => value.toNumber());
+        .chain((value) => value.toNumber())
+        .toMaybe();
     }
 
     get maxExclusive(): Maybe<Literal> {
       return this.resource
         .value(sh.maxExclusive)
-        .chain((value) => value.toLiteral());
+        .chain((value) => value.toLiteral())
+        .toMaybe();
     }
 
     get maxInclusive(): Maybe<Literal> {
       return this.resource
         .value(sh.maxInclusive)
-        .chain((value) => value.toLiteral());
+        .chain((value) => value.toLiteral())
+        .toMaybe();
     }
 
     get minCount(): Maybe<number> {
       return this.resource
         .value(sh.minCount)
-        .chain((value) => value.toNumber());
+        .chain((value) => value.toNumber())
+        .toMaybe();
     }
 
     get minExclusive(): Maybe<Literal> {
       return this.resource
         .value(sh.minExclusive)
-        .chain((value) => value.toLiteral());
+        .chain((value) => value.toLiteral())
+        .toMaybe();
     }
 
     get minInclusive(): Maybe<Literal> {
       return this.resource
         .value(sh.minInclusive)
-        .chain((value) => value.toLiteral());
+        .chain((value) => value.toLiteral())
+        .toMaybe();
     }
 
     get nodeKinds(): Set<NodeKind> {
       const nodeKinds = new Set<NodeKind>();
       for (const nodeKindValue of this.resource.values(sh.nodeKind)) {
-        const nodeKindIri = nodeKindValue.toIri().extractNullable();
-        if (nodeKindIri === null) {
-        } else if (nodeKindIri.equals(sh.BlankNode)) {
-          nodeKinds.add(NodeKind.BLANK_NODE);
-        } else if (nodeKindIri.equals(sh.BlankNodeOrIRI)) {
-          nodeKinds.add(NodeKind.BLANK_NODE);
-          nodeKinds.add(NodeKind.IRI);
-        } else if (nodeKindIri.equals(sh.BlankNodeOrLiteral)) {
-          nodeKinds.add(NodeKind.BLANK_NODE);
-          nodeKinds.add(NodeKind.LITERAL);
-        } else if (nodeKindIri.equals(sh.IRI)) {
-          nodeKinds.add(NodeKind.IRI);
-        } else if (nodeKindIri.equals(sh.IRIOrLiteral)) {
-          nodeKinds.add(NodeKind.IRI);
-          nodeKinds.add(NodeKind.LITERAL);
-        } else if (nodeKindIri.equals(sh.Literal)) {
-          nodeKinds.add(NodeKind.LITERAL);
-        }
+        nodeKindValue.toIri().ifRight((nodeKindIri) => {
+          if (nodeKindIri.equals(sh.BlankNode)) {
+            nodeKinds.add(NodeKind.BLANK_NODE);
+          } else if (nodeKindIri.equals(sh.BlankNodeOrIRI)) {
+            nodeKinds.add(NodeKind.BLANK_NODE);
+            nodeKinds.add(NodeKind.IRI);
+          } else if (nodeKindIri.equals(sh.BlankNodeOrLiteral)) {
+            nodeKinds.add(NodeKind.BLANK_NODE);
+            nodeKinds.add(NodeKind.LITERAL);
+          } else if (nodeKindIri.equals(sh.IRI)) {
+            nodeKinds.add(NodeKind.IRI);
+          } else if (nodeKindIri.equals(sh.IRIOrLiteral)) {
+            nodeKinds.add(NodeKind.IRI);
+            nodeKinds.add(NodeKind.LITERAL);
+          } else if (nodeKindIri.equals(sh.Literal)) {
+            nodeKinds.add(NodeKind.LITERAL);
+          }
+        });
       }
       return nodeKinds;
     }
@@ -122,6 +139,7 @@ export namespace Shape {
       return [...this.resource.values(sh.node)].flatMap((value) =>
         value
           .toIdentifier()
+          .toMaybe()
           .chain((shapeNode) => this.shapesGraph.nodeShapeByNode(shapeNode))
           .toList(),
       );
@@ -131,6 +149,7 @@ export namespace Shape {
       return [...this.resource.values(sh.not)].flatMap((value) =>
         value
           .toIdentifier()
+          .toMaybe()
           .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
           .toList(),
       );
@@ -149,11 +168,12 @@ export namespace Shape {
     ): readonly Shape[] {
       return this.resource
         .value(predicate)
-        .chain((value) => value.toList().toMaybe())
+        .chain((value) => value.toList())
         .map((values) =>
           values.flatMap((value) =>
             value
               .toIdentifier()
+              .toMaybe()
               .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
               .toList(),
           ),
@@ -167,27 +187,27 @@ export namespace Shape {
 
     get targetClasses(): readonly NamedNode[] {
       return [...this.resource.values(sh.targetClass)].flatMap((value) =>
-        value.toIri().toList(),
+        value.toIri().toMaybe().toList(),
       );
     }
 
     get targetNodes(): readonly (Literal | NamedNode)[] {
       return [...this.resource.values(sh.targetNode)].flatMap((value) =>
-        (value.toLiteral() as Maybe<Literal | NamedNode>)
-          .altLazy(() => value.toIri())
+        (value.toLiteral().toMaybe() as Maybe<Literal | NamedNode>)
+          .altLazy(() => value.toIri().toMaybe())
           .toList(),
       );
     }
 
     get targetObjectsOf(): readonly NamedNode[] {
       return [...this.resource.values(sh.targetObjectsOf)].flatMap((value) =>
-        value.toIri().toList(),
+        value.toIri().toMaybe().toList(),
       );
     }
 
     get targetSubjectsOf(): readonly NamedNode[] {
       return [...this.resource.values(sh.targetSubjectsOf)].flatMap((value) =>
-        value.toIri().toList(),
+        value.toIri().toMaybe().toList(),
       );
     }
   }

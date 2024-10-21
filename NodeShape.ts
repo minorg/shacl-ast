@@ -21,13 +21,17 @@ export class NodeShape extends Shape {
 export namespace NodeShape {
   export class Constraints extends Shape.Constraints {
     get closed(): Maybe<boolean> {
-      return this.resource.value(sh.closed).chain((value) => value.toBoolean());
+      return this.resource
+        .value(sh.closed)
+        .chain((value) => value.toBoolean())
+        .toMaybe();
     }
 
     get properties(): readonly PropertyShape[] {
       return [...this.resource.values(sh.property)].flatMap((value) =>
         value
           .toIdentifier()
+          .toMaybe()
           .chain((shapeNode) => this.shapesGraph.propertyShapeByNode(shapeNode))
           .toList(),
       );

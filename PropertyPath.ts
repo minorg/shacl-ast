@@ -19,8 +19,8 @@ export interface OneOrMorePath {
 }
 
 export interface PredicatePath {
-  readonly kind: "PredicatePath";
   readonly iri: NamedNode;
+  readonly kind: "PredicatePath";
 }
 
 export interface SequencePath {
@@ -66,7 +66,7 @@ export namespace PropertyPath {
       return listResource.toList().chain((values) => {
         const members: PropertyPath[] = [];
         for (const value of values) {
-          const memberResource = value.toResource();
+          const memberResource = value.toResource().toMaybe();
           if (memberResource.isNothing()) {
             return Left(new Error("non-identifier in property path list"));
           }
