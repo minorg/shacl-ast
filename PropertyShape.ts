@@ -8,7 +8,7 @@ import { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class PropertyShape extends Shape {
-  readonly constraints: PropertyShape.Constraints;
+  readonly constraints: Shape.Constraints;
 
   constructor(
     resource: Resource,
@@ -16,6 +16,13 @@ export class PropertyShape extends Shape {
   ) {
     super(resource);
     this.constraints = new PropertyShape.Constraints(resource, shapesGraph);
+  }
+
+  get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
+    return this.resource
+      .value(sh.defaultValue)
+      .map((value) => value.toTerm())
+      .toMaybe();
   }
 
   get editor(): Maybe<NamedNode> {
@@ -69,16 +76,5 @@ export class PropertyShape extends Shape {
       keyValues.push(`path=${path.iri.value}`);
     }
     return `PropertyShape(${keyValues.join(", ")})`;
-  }
-}
-
-export namespace PropertyShape {
-  export class Constraints extends Shape.Constraints {
-    get defaultValue(): Maybe<BlankNode | Literal | NamedNode> {
-      return this.resource
-        .value(sh.defaultValue)
-        .map((value) => value.toTerm())
-        .toMaybe();
-    }
   }
 }
